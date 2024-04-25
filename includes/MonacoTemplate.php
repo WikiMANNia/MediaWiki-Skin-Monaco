@@ -906,7 +906,7 @@ return $html;
 		if( $custom_user_data ) {
 			$html .= $custom_user_data;
 		} else {
-			global $wgUser;
+			$wgUser = $skin->getUser();
 			
 			// Output the facebook connect links that were added with PersonalUrls.
 			// @author Sean Colombo
