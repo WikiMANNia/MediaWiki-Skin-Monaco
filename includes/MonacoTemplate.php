@@ -1059,13 +1059,15 @@ if ( $user->isAnon() ) {
 			];
 		}
 
-		$bar[] = [
-			"id" => "page_controls",
-			"type" => "buttons",
-			"class" => "page_controls",
-			"bad_hook" => "MonacoAfterArticleLinks",
-			"links" => $this->data['articlelinks']['left'],
-		];
+		if ( isset( $this->data['articlelinks']['left'] ) ) {
+			$bar[] = [
+				"id" => "page_controls",
+				"type" => "buttons",
+				"class" => "page_controls",
+				"bad_hook" => "MonacoAfterArticleLinks",
+				"links" => $this->data['articlelinks']['left'],
+			];
+		}
 
 		return $this->printCustomPageBar( $bar );
 	}
