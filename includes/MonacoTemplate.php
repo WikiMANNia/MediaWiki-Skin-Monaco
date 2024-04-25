@@ -187,7 +187,8 @@ if ($custom_article_footer !== '') {
 				$userPageTitle = $user->getUserPage();
 				$userPageLink = $userPageTitle->getLocalUrl();
 				$userPageExists = $userPageTitle->exists();
-				$userGender = $user->getOption( 'gender' );
+				$userOptionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
+				$userGender = $userOptionsManager->getOption( $user, 'gender' );
 				$feUserIcon = $this->blankimg( [ 'id' => 'fe_user_img', 'alt' => '', 'class' => ( $userGender == 'female' ? 'sprite user-female' : 'sprite user' ) ] );
 
 				if ( $userPageExists ) {
@@ -907,19 +908,19 @@ return $html;
 	
 	function printUserData() {
 		$skin = $this->data['skin'];
-			$html = '<div id="userData">';
+		$wgUser = $skin->getUser();
+		$html = '<div id="userData">';
 		
 		$custom_user_data = "";
 		
 		if( $custom_user_data ) {
 			$html .= $custom_user_data;
 		} else {
-			$wgUser = $skin->getUser();
 			
 			// Output the facebook connect links that were added with PersonalUrls.
 			// @author Sean Colombo
 			foreach($this->data['userlinks'] as $linkName => $linkData){
-				// 
+
 				if( !empty($linkData['html']) ){
 					$html .= $linkData['html']; 
 				}
