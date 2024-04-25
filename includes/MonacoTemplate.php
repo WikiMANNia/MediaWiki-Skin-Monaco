@@ -530,8 +530,8 @@ echo $html;
 
 	public function addVariables() {
 		$skin = $this->getSkin();
-
 		$user = $skin->getUser();
+		$data_array = [];
 
 		$contLang = MediaWikiServices::getInstance()->getContentLanguage();
 		$lang = $skin->getContext()->getLanguage();
@@ -547,6 +547,7 @@ echo $html;
 		}
 
 		if ( empty( $data_array ) ) {
+			$data_array = [];
 			$data_array['toolboxlinks'] = $skin->getToolboxLinks();
 
 			if ( $cache ) {
@@ -882,7 +883,7 @@ echo $html;
 	
 	function printRightSidebar() {
 		if ( $this->hasRightSidebar() ) {
-		$html .= '<!-- RIGHT SIDEBAR -->
+		$html = '<!-- RIGHT SIDEBAR -->
 		 <div id="right_sidebar" class="sidebar right_sidebar">' .
 $this->lateRightSidebar();
 Hooks::run('MonacoRightSidebar::Late', [ $this ] );
