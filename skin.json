@@ -1,6 +1,9 @@
 {
 	"name": "Monaco",
 	"version": "2.7.0",
+	"requires": {
+		"MediaWiki": ">= 1.35.0"
+	},
 	"author": [
 		"'''Universal Omega'''",
 		"Inez Korczyński",
@@ -13,9 +16,6 @@
 	"descriptionmsg": "monaco-desc",
 	"license-name": "GPL-2.0-or-later",
 	"type": "skin",
-	"requires": {
-		"MediaWiki": ">= 1.35.0"
-	},
 	"ValidSkinNames": {
 		"monaco": {
 			"displayname": "Monaco",
@@ -139,6 +139,18 @@
 		},
 		"MonacoBiggestCategoriesBlacklist": {
 			"value": []
+		},
+		"MonacoEnablePaypal": {
+			"value": false
+		},
+		"MonacoPaypalID": {
+			"value": ""
+		},
+		"MonacoEnablePatreon": {
+			"value": false
+		},
+		"MonacoPatreonURL": {
+			"value": ""
 		}
 	},
 	"Hooks": {
