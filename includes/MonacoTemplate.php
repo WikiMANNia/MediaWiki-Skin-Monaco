@@ -33,14 +33,22 @@ class MonacoTemplate extends BaseTemplate {
 	}
 
 	public function execute() {
-		global $wgStyleVersion, $wgRequest, $wgTitle, $wgSitename;
-		global $wgMonacoUseSitenoticeIsland;
+
+		$wgSitename = $this->mConfig->get( 'Sitename' );
+		$wgStyleVersion =
+			$this->mConfig->has( 'wgStyleVersion' )
+			? $this->mConfig->get( 'wgStyleVersion' )
+			: '';
+		$MonacoUseSitenoticeIsland = $this->mConfig->get( 'MonacoUseSitenoticeIsland' );
 
 		$this->addVariables();
 
 		$skin = $this->data['skin'];
 		$wgLang = $skin->getLanguage();
 		$wgUser = $skin->getUser();
+		$wgOut = $skin->getContext()->getOutput();
+		$wgRequest = $skin->getContext()->getRequest();
+		$wgTitle = $skin->getContext()->getTitle();
 		$action = $wgRequest->getText( 'action' );
 		$namespace = $wgTitle->getNamespace();
 		$stylepath = $this->data['stylepath'];
@@ -93,7 +101,7 @@ if ( Hooks::run( 'AlternateNavLinks' ) ) {
 		<div id="page_wrapper">';
 Hooks::run( 'MonacoBeforePage', [ $this, &$html ] );
 $html .= $this->printBeforePage();
-if ( $wgMonacoUseSitenoticeIsland && $this->data['sitenotice'] ) {
+if ( $MonacoUseSitenoticeIsland && $this->data['sitenotice'] ) {
 			$html .= '<div class="page">
 				<div id="siteNotice">' . $this->get('sitenotice') . '</div>
 			</div>';
@@ -107,7 +115,7 @@ if ( $wgMonacoUseSitenoticeIsland && $this->data['sitenotice'] ) {
 				<article id="content" class="mw-body" role="main" aria-labelledby="firstHeading">
 					<a id="top"></a>';
 					Hooks::run( 'MonacoAfterArticle', [ $this, &$html ] );
-					if ( !$wgMonacoUseSitenoticeIsland && $this->data['sitenotice'] ) { $html .= '<div id="siteNotice">' . $this->get( 'sitenotice' ) . '</div>'; }
+					if ( !$MonacoUseSitenoticeIsland && $this->data['sitenotice'] ) { $html .= '<div id="siteNotice">' . $this->get( 'sitenotice' ) . '</div>'; }
 					if ( method_exists( $this, 'getIndicators' ) ) { $html .= $this->getIndicators(); }
 					$html .= $this->printFirstHeading() . '
 					<div id="bodyContent" class="body_content">
@@ -133,11 +141,10 @@ if ( $wgMonacoUseSitenoticeIsland && $this->data['sitenotice'] ) {
 				<!-- /ARTICLE -->
 
 			<!-- ARTICLE FOOTER -->';
-global $wgTitle, $wgOut;
 $custom_article_footer = '';
 $namespaceType = '';
 Hooks::run( 'CustomArticleFooter', [ &$this, &$tpl, &$custom_article_footer ] );
-if ($custom_article_footer !== '') {
+if ( !empty( $custom_article_footer ) ) {
 	$html .= $custom_article_footer;
 } else {
 	// default footer
@@ -154,14 +161,14 @@ if ($custom_article_footer !== '') {
 	}
 
 	$action = $wgRequest->getVal('action', 'view');
-	if ( $namespaceType != 'none' && in_array( $action, [ 'view', 'purge', 'edit', 'history', 'delete', 'protect' ] ) ) {
+	if ( ( $namespaceType != 'none' ) && in_array( $action, [ 'view', 'purge', 'edit', 'history', 'delete', 'protect' ] ) ) {
 		$nav_urls = $this->data['nav_urls'];
 			$html .= '<div id="articleFooter" class="reset article_footer">
 				<table style="border-spacing: 0;">
 					<tr>
 						<td class="col1">
 							<ul class="actions" id="articleFooterActions">';
-		if ($namespaceType == 'talk') {
+		if ( $namespaceType == 'talk' ) {
 			$custom_article_footer = '';
 			Hooks::run('AddNewTalkSection', [ &$this, &$tpl, &$custom_article_footer ] );
 			if ($custom_article_footer != '')
@@ -339,13 +346,13 @@ $this->printRightSidebar() . '
 	if ( $showDynamicLinks ) {
 		$dynamicLinksInternal = [];
 		
-		global $wgMonacoDynamicCreateOverride;
+		$MonacoDynamicCreateOverride = $this->mConfig->get( 'MonacoDynamicCreateOverride' );
 		$createPage = null;
-		if(!wfMessage('dynamic-links-write-article-url')->isDisabled()) {
+		if( !wfMessage('dynamic-links-write-article-url')->isDisabled() ) {
 			$createPage = Title::newFromText(wfMessage('dynamic-links-write-article-url')->text());
 		}
-		if ( !isset($createPage) && !empty($wgMonacoDynamicCreateOverride) ) {
-			$createPage = Title::newFromText($wgMonacoDynamicCreateOverride);
+		if ( !isset($createPage) && !empty($MonacoDynamicCreateOverride) ) {
+			$createPage = Title::newFromText($MonacoDynamicCreateOverride);
 		}
 		if ( !isset($createPage) ) {
 		    
@@ -449,7 +456,7 @@ $this->printRightSidebar() . '
 		for ($i = 0, $max = max(array_keys($linksArray)); $i <= $max; $i++) {
 			$item = isset($linksArray[$i]) ? $linksArray[$i] : false;
 			//Redirect to login page instead of showing error, see Login friction project
-			if ($item !== false && $wgUser->isAnon() && isset($item['specialCanonicalName']) && $wgSpecialPagesRequiredLogin && in_array($item['specialCanonicalName'], $wgSpecialPagesRequiredLogin)) {
+			if ( ( $item !== false ) && $wgUser->isAnon() && isset($item['specialCanonicalName']) && $wgSpecialPagesRequiredLogin && in_array($item['specialCanonicalName'], $wgSpecialPagesRequiredLogin ) ) {
 				$returnto = SpecialPage::getTitleFor($item['specialCanonicalName'])->getPrefixedDBkey();
 				$item['href'] = SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ "returnto" => $returnto ] );
 			}
@@ -475,7 +482,7 @@ $this->printRightSidebar() . '
 				</td>
 				<td>
 					<ul>';
-		if(is_array($linksArrayR) && count($linksArrayR) > 0) {
+		if( is_array($linksArrayR) && ( count($linksArrayR) > 0 ) ) {
 		    foreach($linksArrayR as $key => $val) {
 				if ($val === false) {
 					$html .= '<li>&nbsp;</li>';
@@ -1103,7 +1110,9 @@ if ( $user->isAnon() ) {
 
 	var $primaryPageBarPrinted = false;
 	function printCustomPageBar( $bar ) {
-		global $wgMonacoCompactSpecialPages;
+
+		$MonacoCompactSpecialPages = $this->mConfig->get( 'MonacoCompactSpecialPages' );
+
 		$isPrimary = !$this->primaryPageBarPrinted;
 		$this->primaryPageBarPrinted = true;
 		
@@ -1111,7 +1120,7 @@ if ( $user->isAnon() ) {
 		foreach( $bar as $list ) {
 			$count += count( $list['links'] ?? [] );
 		}
-		$useCompactBar = $wgMonacoCompactSpecialPages && $count == 1;
+		$useCompactBar = $MonacoCompactSpecialPages && ( $count == 1 );
 		$deferredList = null;
 		
 		$divClass = "reset color1 page_bar clearfix";
@@ -1155,7 +1164,7 @@ if ( $user->isAnon() ) {
 			$attrs["class"] .= " {$list["class"]}";
 		}
 		
-		return $this->printCustomPageBarListLinks( $list["links"], $attrs, "			", $list["bad_hook"] ?? 'MonacoAfterArticleLinks' );
+		return $this->printCustomPageBarListLinks( $list['links'], $attrs, "			", isset( $list['bad_hook'] ) ? $list['bad_hook'] : 'MonacoAfterArticleLinks' );
 	}
 	
 	function printCustomPageBarListLinks( $links, $attrs = [], $indent = '', $hook = null ) {
