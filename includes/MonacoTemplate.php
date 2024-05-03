@@ -4,7 +4,12 @@ use MediaWiki\MediaWikiServices;
 
 class MonacoTemplate extends BaseTemplate {
 
+	private $mConfig;
 	private $mRightSidebar = '';
+
+	public function __construct() {
+		$this->mConfig = new GlobalVarConfig();
+	}
 
 	/**
 	 * Shortcut for building these crappy blankimg based icons that probably could
@@ -34,6 +39,7 @@ class MonacoTemplate extends BaseTemplate {
 		$this->addVariables();
 
 		$skin = $this->data['skin'];
+		$wgLang = $skin->getLanguage();
 		$wgUser = $skin->getUser();
 		$action = $wgRequest->getText( 'action' );
 		$namespace = $wgTitle->getNamespace();
@@ -150,7 +156,6 @@ if ($custom_article_footer !== '') {
 	$action = $wgRequest->getVal('action', 'view');
 	if ( $namespaceType != 'none' && in_array( $action, [ 'view', 'purge', 'edit', 'history', 'delete', 'protect' ] ) ) {
 		$nav_urls = $this->data['nav_urls'];
-		global $wgLang;
 			$html .= '<div id="articleFooter" class="reset article_footer">
 				<table style="border-spacing: 0;">
 					<tr>
@@ -484,23 +489,54 @@ $this->printRightSidebar() . '
 					$html .= '</ul>
 				</td>
 			</tr>';
-		global $wgMonacoEnablePaypal, $wgMonacoPaypalID, $wgMonacoEnablePatreon, $wgMonacoPatreonURL;
-		if ( $wgMonacoEnablePaypal && !empty( $wgMonacoPaypalID ) ) {
+		$MonacoEnablePaypal  = $this->mConfig->get( 'MonacoEnablePaypal' );
+		$MonacoPaypalID      = $this->mConfig->get( 'MonacoPaypalID' );
+		$MonacoEnablePatreon = $this->mConfig->get( 'MonacoEnablePatreon' );
+		$MonacoPatreonURL    = $this->mConfig->get( 'MonacoPatreonURL' );
+
+		$lang_code = $skin->getLanguage()->getCode();
+		switch ( $lang_code ) {
+			case 'de-at' :
+			case 'de-ch' :
+			case 'de-formal' :
+				$lang_code = 'de_DE';
+			break;
+			case 'es-formal' :
+				$lang_code = 'es_ES';
+			break;
+			case 'nl-formal' :
+				$lang_code = 'nl_NL';
+			break;
+			case 'en-ca' :
+				$lang_code = 'en_CA';
+			break;
+			case 'en-gb' :
+				$lang_code = 'en_GB';
+			break;
+			case 'en' :
+				$lang_code = 'en_US';
+			break;
+			default :
+				$lang_code = strtolower( $lang_code ) . '_' . strtoupper( $lang_code );
+			break;
+		}
+
+		if ( $MonacoEnablePaypal && !empty( $MonacoPaypalID ) ) {
 			$html .= '<tr>
 				<td colspan="2" style="text-align:center;">
 					<form action="https://www.paypal.com/cgi-bin/webscr" method="post" title="PayPal">
 						<input type="hidden" name="cmd" value="_s-xclick" />
-						<input type="hidden" name="hosted_button_id" value="' . $wgMonacoPaypalID . '" />
+						<input type="hidden" name="hosted_button_id" value="' . $MonacoPaypalID . '" />
 						<input type="image" src="' . $stylepath . '/Monaco/style/images/paypal.png" name="submit" alt="PayPal - The safer, easier way to pay online!" style="border: 0; width:139px; margin:0;" />
-						<img alt="" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1" style="border: 0;" />
+						<img alt="" src="https://www.paypalobjects.com/'. $lang_code .'/i/scr/pixel.gif" width="1" height="1" style="border: 0;" />
 					</form>
 				</td>
 			</tr>';
 		}
-		if ( $wgMonacoEnablePatreon && !empty( $wgMonacoPatreonURL ) ) {
+		if ( $MonacoEnablePatreon && !empty( $MonacoPatreonURL ) ) {
 			$html .= '<tr>
 				<td colspan="2" style="text-align:center;">
-					<a href="' . $wgMonacoPatreonURL . '" target="_blank" rel="nofollow"><img alt="Patreon" src="' . $stylepath . '/Monaco/style/images/patreon.png" width="139" height="37"></a>
+					<a href="' . $MonacoPatreonURL . '" target="_blank" rel="nofollow"><img alt="Patreon" src="' . $stylepath . '/Monaco/style/images/patreon.png" width="139" height="37" /></a>
 				</td>
 			</tr>';
 		}
@@ -978,7 +1014,7 @@ return $html;
 		if ( !$skin->showMasthead() ) {
 			return;
 		}
-		global $wgLang;
+		$wgLang = $this->getContext()->getLanguage();
 		$user = $skin->getMastheadUser();
 		$username = $user->isAnon() ? wfMessage('masthead-anonymous-user')->text() : $user->getName();
 		$editcount = $wgLang->formatNum($user->isAnon() ? 0 : $user->getEditcount());
@@ -1073,9 +1109,7 @@ if ( $user->isAnon() ) {
 		
 		$count = 0;
 		foreach( $bar as $list ) {
-			if ( $list['links'] ) {
-				$count += count( $list['links'] );
-			}
+			$count += count( $list['links'] ?? [] );
 		}
 		$useCompactBar = $wgMonacoCompactSpecialPages && $count == 1;
 		$deferredList = null;
@@ -1121,7 +1155,7 @@ if ( $user->isAnon() ) {
 			$attrs["class"] .= " {$list["class"]}";
 		}
 		
-		return $this->printCustomPageBarListLinks( $list['links'], $attrs, "			", isset( $list['bad_hook'] ) ? $list['bad_hook'] : 'MonacoAfterArticleLinks' );
+		return $this->printCustomPageBarListLinks( $list["links"], $attrs, "			", $list["bad_hook"] ?? 'MonacoAfterArticleLinks' );
 	}
 	
 	function printCustomPageBarListLinks( $links, $attrs = [], $indent = '', $hook = null ) {
