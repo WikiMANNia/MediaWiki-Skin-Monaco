@@ -2,6 +2,7 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\User\UserOptionsLookup;
 
 class SkinMonaco extends SkinTemplate {
 
@@ -28,11 +29,27 @@ class SkinMonaco extends SkinTemplate {
 
 	private $mMastheadUser;
 	private $mMastheadTitleVisible;
+	private UserOptionsLookup $mUserOptionsLookup;
 
 	public function __construct( array $options = [] ) {
 		$this->config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'monaco' );
+		$this->mUserOptionsLookup = $mUserOptionsLookup ?? MediaWikiServices::getInstance()->getUserOptionsLookup();
 
 		parent::__construct( $options );
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getSkinMonacoDefaultTheme() {
+		return "sapphire";
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public static function getSkinMonacoThemeList() {
+		return [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire", "sky", "slate", "smoke", "spring" ];
 	}
 
 	/**
@@ -56,12 +73,14 @@ class SkinMonaco extends SkinTemplate {
 		$user = RequestContext::getMain()->getUser();
 		// Check the following things in this order:
 		// 1) value of $wgDefaultTheme (set in site configuration)
-		// 2) per-page usetheme URL parameter
+		// 2) user's personal preference/override
+		// 3) per-page usetheme URL parameter
 		$theme = $this->config->get( 'MonacoTheme' );
+		$theme = $this->mUserOptionsLookup->getOption( $user, 'theme', $theme );
 		$theme = $request->getText( 'usetheme', $theme );
 		
-		$themes = [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire", "sky", "slate", "smoke", "spring" ];
-		$theme_fallback = 'sapphire';
+		$themes = SkinMonaco::getSkinMonacoThemeList();
+		$theme_fallback = SkinMonaco::getSkinMonacoDefaultTheme();
 		if ( !in_array( $theme, $themes ) ) {
 			$theme = $theme_fallback;
 		}
