@@ -1118,7 +1118,9 @@ if ( $user->isAnon() ) {
 		
 		$count = 0;
 		foreach( $bar as $list ) {
-			$count += count( $list['links'] ?? [] );
+			if ( $list['links'] ) {
+				$count += count( $list['links'] );
+			}
 		}
 		$useCompactBar = $MonacoCompactSpecialPages && ( $count == 1 );
 		$deferredList = null;
