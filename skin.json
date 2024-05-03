@@ -168,9 +168,12 @@
 		"MessageCacheReplace": [
 			"MonacoSidebar::invalidateCache"
 		],
-		"OutputPageBodyAttributes": [
-			"MonacoHooks::onOutputPageBodyAttributes"
-		]
+		"OutputPageBodyAttributes": "main"
+	},
+	"HookHandlers": {
+		"main": {
+			"class": "MonacoHooks"
+		}
 	},
 	"manifest_version": 2
 }
