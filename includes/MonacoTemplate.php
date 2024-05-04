@@ -231,9 +231,9 @@ if ( !empty( $custom_article_footer ) ) {
 			}
 
 			if ( !empty( $nav_urls['recentchangeslinked'] ) ) {
-				$feRecentIcon = $this->blankimg( [ "id" => "fe_recent_img", "class" => "sprite recent", "alt" => "" ] );
-				$feRecentIcon = Html::rawElement("a", [ "id" => "fe_recent_icon", "href" => $nav_urls['recentchangeslinked']['href'] ], $feRecentIcon);
-				$feRecentLink = Html::rawElement("a", [ "id" => "fe_recent_link", "href" => $nav_urls['recentchangeslinked']['href'] ], wfMessage('recentchangeslinked')->escaped());
+				$feRecentIcon = $this->blankimg( [ 'id' => 'fe_recent_img', 'class' => 'sprite recent', 'alt' => '' ] );
+				$feRecentIcon = Html::rawElement( 'a', [ 'id' => 'fe_recent_icon', 'href' => $nav_urls['recentchangeslinked']['href'] ], $feRecentIcon);
+				$feRecentLink = Html::rawElement( 'a', [ 'id' => 'fe_recent_link', 'href' => $nav_urls['recentchangeslinked']['href'] ], wfMessage('recentchangeslinked')->escaped());
 
 				$html .= '<li id="fe_recent">' . $feRecentIcon . ' <div>' . $feRecentLink . '</div></li>';
 			}
@@ -747,7 +747,7 @@ echo $html;
 		$page = $request->getVal( 'returnto', $page );
 		$a = [];
 
-		if ( strval( $page ) !== '' ) {
+		if ( !empty( strval( $page ) ) ) {
 			$a['returnto'] = $page;
 			$query = $request->getVal( 'returntoquery' );
 			if ( $query === null && !$request->wasPosted() ) {
@@ -757,7 +757,7 @@ echo $html;
 				unset( $thisquery['returntoquery'] );
 				$query = $thisquery;
 			}
-			if( $query != '' ) {
+			if( !empty( $query ) ) {
 				$a['returntoquery'] = $query;
 			}
 		}
