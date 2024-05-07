@@ -168,10 +168,10 @@ if ( !empty( $custom_article_footer ) ) {
 					<tr>
 						<td class="col1">
 							<ul class="actions" id="articleFooterActions">';
-		if ( $namespaceType == 'talk' ) {
+		if ( $namespaceType === 'talk' ) {
 			$custom_article_footer = '';
 			Hooks::run('AddNewTalkSection', [ &$this, &$tpl, &$custom_article_footer ] );
-			if ($custom_article_footer != '')
+			if ( !empty( $custom_article_footer ) )
 				 $html .= $custom_article_footer;
 		} else {
 			$html .= "								";
@@ -206,18 +206,24 @@ if ( !empty( $custom_article_footer ) ) {
 					$feUserIcon = Html::rawElement( 'a', [ 'id' => 'fe_user_icon', 'href' => $userPageLink ], $feUserIcon );
 				}
 
-				$html .= '<li>' . $feUserIcon . ' <div>';
-				$html .= wfMessage( 'monaco-footer-lastedit' )->rawParams( $linkRenderer->makeLink( $userPageTitle, $user->getName(), [ 'id' => 'fe_user_link' ] ), Html::element( 'time', [ 'datetime' => wfTimestamp( TS_ISO_8601, $timestamp ) ], $lastUpdate ) )->escaped();
+				$html .= Html::rawElement( 'li', null,
+					$feUserIcon . ' ' .
+					Html::rawElement( 'div', null,
+						wfMessage( 'monaco-footer-lastedit' )->rawParams( 
+						 	$linkRenderer->makeLink( $userPageTitle, $user->getName(), [ 'id' => 'fe_user_link' ] ),
+						 	Html::element( 'time', [ 'datetime' => wfTimestamp( TS_ISO_8601, $timestamp ) ], $lastUpdate ) )->escaped() ) );
 			}
 		}
 
 		if ( $this->data['copyright'] ) {
 			$feCopyIcon = $this->blankimg( [ 'id' => 'fe_copyright_img', 'class' => 'sprite copyright', 'alt' => '' ] );
 
-			$html .= '<li>' . $feCopyIcon . ' <div id="copyright">' . $this->get( 'copyright' ) . '</div></li>';
+			$html .= Html::rawElement( 'li', null,
+				$feCopyIcon . ' ' .
+				Html::rawElement( 'div', [ 'id' => 'copyright' ], $this->get( 'copyright' ) ) );
 		}
 
-		$html .= '</ul></td><td class="col2">';
+		$html .= "</ul>\n</td>\n<td class='col2'>";
 
 		if ( !empty( $this->data['content_actions']['history'] ) || !empty( $nav_urls['recentchangeslinked'] ) ) {
 			$html .= '<ul id="articleFooterActions3" class="actions clearfix">';
@@ -227,7 +233,9 @@ if ( !empty( $custom_article_footer ) ) {
 				$feHistoryIcon = Html::rawElement( 'a', [ 'id' => 'fe_history_icon', 'href' => $this->data['content_actions']['history']['href'] ], $feHistoryIcon );
 				$feHistoryLink = Html::rawElement( 'a', [ 'id' => 'fe_history_link', 'href' => $this->data['content_actions']['history']['href'] ], $this->data['content_actions']['history']['text'] );
 
-				$html .= '<li id="fe_history">' . $feHistoryIcon . ' <div>' . $feHistoryLink . '</div></li>';
+				$html .= Html::rawElement( 'li', [ 'id' => 'fe_history' ],
+					$feHistoryIcon . ' ' .
+					Html::rawElement( 'div', null, $feHistoryLink ) );
 			}
 
 			if ( !empty( $nav_urls['recentchangeslinked'] ) ) {
@@ -235,10 +243,12 @@ if ( !empty( $custom_article_footer ) ) {
 				$feRecentIcon = Html::rawElement( 'a', [ 'id' => 'fe_recent_icon', 'href' => $nav_urls['recentchangeslinked']['href'] ], $feRecentIcon);
 				$feRecentLink = Html::rawElement( 'a', [ 'id' => 'fe_recent_link', 'href' => $nav_urls['recentchangeslinked']['href'] ], wfMessage('recentchangeslinked')->escaped());
 
-				$html .= '<li id="fe_recent">' . $feRecentIcon . ' <div>' . $feRecentLink . '</div></li>';
+				$html .= Html::rawElement( 'li', [ 'id' => 'fe_recent' ],
+					$feRecentIcon . ' ' .
+					Html::rawElement( 'div', null, $feRecentLink ) );
 			}
 
-			$html .= '</ul>';
+			$html .= "</ul>\n";
 		}
 
 		if ( !empty( $nav_urls['permalink'] ) || !empty( $nav_urls['whatlinkshere'] ) ) {
@@ -249,7 +259,9 @@ if ( !empty( $custom_article_footer ) ) {
 				$fePermaIcon = Html::rawElement( 'a', [ 'id' => 'fe_permalink_icon', 'href' => $nav_urls['permalink']['href'] ], $fePermaIcon);
 				$fePermaLink = Html::rawElement( 'a', [ 'id' => 'fe_permalink_link', 'href' => $nav_urls['permalink']['href'] ], $nav_urls['permalink']['text']);
 
-				$html .= '<li id="fe_permalink">' . $fePermaIcon . ' <div>' . $fePermaLink . '</div></li>';
+				$html .= Html::rawElement( 'li', [ 'id' => 'fe_permalink' ],
+					$fePermaIcon . ' ' .
+					Html::rawElement( 'div', null, $fePermaLink ) );
 			}
 
 			if ( !empty( $nav_urls['whatlinkshere'] ) ) {
@@ -257,9 +269,11 @@ if ( !empty( $custom_article_footer ) ) {
 				$feWhatIcon = Html::rawElement( 'a', [ 'id' => 'fe_whatlinkshere_icon', 'rel' => 'nofollow', 'href' => $nav_urls['whatlinkshere']['href'] ], $feWhatIcon);
 				$feWhatLink = Html::rawElement( 'a', [ 'id' => 'fe_whatlinkshere_link', 'rel' => 'nofollow', 'href' => $nav_urls['whatlinkshere']['href'] ], wfMessage('whatlinkshere')->escaped());
 
-				$html .= '<li id="fe_whatlinkshere">' . $feWhatIcon . ' <div>' . $feWhatLink . '</div></li>';
+				$html .= Html::rawElement( 'li', [ 'id' => 'fe_whatlinkshere' ],
+					$feWhatIcon . ' ' .
+					Html::rawElement( 'div', null, $feWhatLink ) );
 			}
-			$html .= '</ul>';
+			$html .= "</ul>\n";
 		}
 
 		$feRandIcon = $this->blankimg( [ 'id' => 'fe_random_img', 'class' => 'sprite random', 'alt' => '' ] );
@@ -267,20 +281,24 @@ if ( !empty( $custom_article_footer ) ) {
 		$feRandLink = Html::rawElement( 'a', [ 'id' => 'fe_random_link', 'href' => Skin::makeSpecialUrl( 'Randompage' ) ], wfMessage( 'viewrandompage' )->escaped() );
 
 		$html .= '<ul class="actions clearfix" id="articleFooterActions2">';
-		$html .= '<li id="fe_randompage">' . $feRandIcon . ' <div>' . $feRandLink . '</div></li>';
+		$html .= Html::rawElement( 'li', [ 'id' => 'fe_randompage' ],
+			$feRandIcon . ' ' .
+			Html::rawElement( 'div', null, $feRandLink ) );
 
 		if ( !empty( $this->get( 'mobileview' ) ) ) {
 			$feMobileIcon = $this->blankimg( [ 'id' => 'fe_mobile_img', 'class' => 'sprite mobile', 'alt' => '' ] );
 			$this->set( 'mobileview', preg_replace( '/(<a[^>]*?href[^>]*?)>/', '$1 rel="nofollow">', $this->get( 'mobileview' ) ) );
 
-			$html .= '<li id="fe_mobile">' . $feMobileIcon . ' <div>' . $this->get( 'mobileview' ) . '</div></li>';
+			$html .= Html::rawElement( 'li', [ 'id' => 'fe_mobile' ],
+				$feMobileIcon . ' ' .
+				Html::rawElement( 'div', null, $this->get( 'mobileview' ) ) );
 		}
 
-		$html .= '</ul>';
-		$html .= '</td>';
-		$html .= '</tr>';
-		$html .= '</table>';
-		$html .= '</div>';
+		$html .= "</ul>\n";
+		$html .= "</td>\n";
+		$html .= "</tr>\n";
+		$html .= "</table>\n";
+		$html .= "</div>\n";
 	} // end $namespaceType != 'none'
 } // end else from CustomArticleFooter hook
 
@@ -397,8 +415,8 @@ $this->printRightSidebar() . '
 				$url = Title::newFromText(wfMessage("dynamic-links-$line-url")->text());
 				if ( $url ) {
 					$dynamicLinksUser[$line] = [
-						"url" => $url,
-						"icon" => "edit", // @note Designers used messy css sprites so we can't really let this be customized easily
+						'url' => $url,
+						'icon' => 'edit', // @note Designers used messy css sprites so we can't really let this be customized easily
 					];
 				}
 			}
@@ -429,10 +447,10 @@ $this->printRightSidebar() . '
 				$html .= "\n";
 			}
 
-				$html .= '</ul>
-				</td>
-			</tr>
-		</tbody>';
+				$html .= "</ul>\n
+				</td>\n
+			</tr>\n
+		</tbody>\n";
 	}
 	//END: create dynamic box
 
@@ -750,7 +768,7 @@ echo $html;
 		if ( !empty( strval( $page ) ) ) {
 			$a['returnto'] = $page;
 			$query = $request->getVal( 'returntoquery' );
-			if ( $query === null && !$request->wasPosted() ) {
+			if ( !empty( $query ) && !$request->wasPosted() ) {
 				$thisquery = $request->getValues();
 				unset( $thisquery['title'] );
 				unset( $thisquery['returnto'] );
@@ -848,11 +866,11 @@ echo $html;
 	function printExtraSidebar() {}
 	
 	function sidebarBox( $bar, $cont, $options = [] ) {
-		$titleClass = "sidebox_title";
-		$contentClass = "sidebox_contents";
+		$titleClass = 'sidebox_title';
+		$contentClass = 'sidebox_contents';
 		if ( isset($options['widget']) && $options['widget'] ) {
-			$titleClass .= " widget_contents";
-			$contentClass .= " widget_title";
+			$titleClass .= ' widget_contents';
+			$contentClass .= ' widget_title';
 		}
 		
 		$attrs = [ 'class' => 'widget sidebox' ];
@@ -911,14 +929,14 @@ echo $html;
 	
 	function printRightSidebar() {
 		if ( $this->hasRightSidebar() ) {
-		$html = '<!-- RIGHT SIDEBAR -->
+			$html = '<!-- RIGHT SIDEBAR -->
 		 <div id="right_sidebar" class="sidebar right_sidebar">' .
 $this->lateRightSidebar();
 Hooks::run('MonacoRightSidebar::Late', [ $this ] );
 $html .= $this->mRightSidebar . '
 		</div>
 		<!-- /RIGHT SIDEBAR -->';
-return $html;
+			return $html;
 		}
 	}
 	
@@ -1040,11 +1058,11 @@ if ( $user->isAnon() ) {
 
 				foreach ( $this->data['articlelinks']['right'] as $navLink ) {
 					$class = "color1";
-					if ( isset($navLink["class"]) ) {
-						$class .= " {$navLink["class"]}";
+					if ( isset($navLink['class']) ) {
+						$class .= " {$navLink['class']}";
 					}
-					$html .= Html::rawElement( 'li', [ "class" => $class ],
-						Html::element( 'a', [ "href" => $navLink["href"] ], $navLink["text"] ) );
+					$html .= Html::rawElement( 'li', [ 'class' => $class ],
+						Html::element( 'a', [ 'href' => $navLink['href'] ], $navLink['text'] ) );
 				}
 				$html .= '</ul>
 			</div>';
@@ -1060,9 +1078,9 @@ if ( $user->isAnon() ) {
 	function realPrintPageBar(){
 		foreach ( $this->data['articlelinks'] as $side => $links ) {
 			foreach ( $links as $key => $link ) {
-				$this->data['articlelinks'][$side][$key]["id"] = "ca-$key";
-				if ( $side == "left" && !isset($link["icon"]) ) {
-					$this->data['articlelinks'][$side][$key]["icon"] = $key;
+				$this->data['articlelinks'][$side][$key]['id'] = "ca-$key";
+				if ( $side == 'left' && !isset($link['icon']) ) {
+					$this->data['articlelinks'][$side][$key]['icon'] = $key;
 				}
 			}
 		}
@@ -1070,10 +1088,10 @@ if ( $user->isAnon() ) {
 		$bar = [];
 		if ( isset( $this->data['articlelinks']['right'] ) ) {
 			$bar[] = [
-				"id" => "page_tabs",
-				"type" => "tabs",
-				"class" => "primary_tabs",
-				"links" => $this->data['articlelinks']['right'],
+				'id' => 'page_tabs',
+				'type' => 'tabs',
+				'class' => 'primary_tabs',
+				'links' => $this->data['articlelinks']['right'],
 			];
 		}
 		if ( isset( $this->data['articlelinks']['variants'] ) ) {
@@ -1081,15 +1099,15 @@ if ( $user->isAnon() ) {
 
 			$preferred = $contLang->getPreferredVariant();
 			$bar[] = [
-				"id" => "page_variants",
-				"type" => "tabs",
-				"class" => "page_variants",
-				"links" => [
+				'id' => 'page_variants',
+				'type' => 'tabs',
+				'class' => 'page_variants',
+				'links' => [
 					[
-						"class" => 'selected',
-						"text" => $contLang->getVariantname( $preferred ),
-						"href" => $this->data['skin']->getTitle()->getLocalURL( '', $preferred ),
-						"links" => $this->data['articlelinks']['variants'],
+						'class' => 'selected',
+						'text' => $contLang->getVariantname( $preferred ),
+						'href' => $this->data['skin']->getTitle()->getLocalURL( '', $preferred ),
+						'links' => $this->data['articlelinks']['variants'],
 					]
 				]
 			];
@@ -1097,11 +1115,11 @@ if ( $user->isAnon() ) {
 
 		if ( isset( $this->data['articlelinks']['left'] ) ) {
 			$bar[] = [
-				"id" => "page_controls",
-				"type" => "buttons",
-				"class" => "page_controls",
-				"bad_hook" => "MonacoAfterArticleLinks",
-				"links" => $this->data['articlelinks']['left'],
+				'id' => 'page_controls',
+				'type' => 'buttons',
+				'class' => 'page_controls',
+				'bad_hook' => 'MonacoAfterArticleLinks',
+				'links' => $this->data['articlelinks']['left'],
 			];
 		}
 
@@ -1125,10 +1143,10 @@ if ( $user->isAnon() ) {
 		$useCompactBar = $MonacoCompactSpecialPages && ( $count == 1 );
 		$deferredList = null;
 		
-		$divClass = "reset color1 page_bar clearfix";
+		$divClass = 'reset color1 page_bar clearfix';
 		
 		foreach( $bar as $i => $list ) {
-			if ( $useCompactBar && $list["id"] == "page_tabs" && !empty($list["links"]) && isset($list["links"]['nstab-special']) ) {
+			if ( $useCompactBar && $list['id'] == 'page_tabs' && !empty($list['links']) && isset($list['links']['nstab-special']) ) {
 				$deferredList = $list;
 				$deferredList['class'] .= ' compact_page_tabs';
 				$divClass .= ' compact_page_bar';
@@ -1138,7 +1156,7 @@ if ( $user->isAnon() ) {
 		}
 		
 		$html = "		";
-		$html .= Html::openElement( 'div', [ "id" => $isPrimary ? "page_bar" : null, "class" => $divClass ] );
+		$html .= Html::openElement( 'div', [ 'id' => $isPrimary ? 'page_bar' : null, 'class' => $divClass ] );
 		$html .= "\n";
 		if ( !$useCompactBar || !isset($deferredList) ) {
 			foreach ( $bar as $list ) {
@@ -1154,16 +1172,16 @@ if ( $user->isAnon() ) {
 	}
 
 	function printCustomPageBarList( $list ) {
-		if ( !isset($list["type"]) ) {
-			$list["type"] = "buttons";
+		if ( !isset($list['type']) ) {
+			$list['type'] = 'buttons';
 		}
 		$attrs = [
-			"class" => "page_{$list["type"]}",
-			"id" => $list["id"],
-			"role" => /*$list["type"] == "tabs" ? "navigation" :*/ "toolbar",
+			'class' => "page_{$list['type']}",
+			'id' => $list['id'],
+			'role' => /*$list['type'] == 'tabs' ? 'navigation' :*/ 'toolbar',
 		];
-		if ( isset($list["class"]) && $list["class"] ) {
-			$attrs["class"] .= " {$list["class"]}";
+		if ( isset($list['class']) && $list['class'] ) {
+			$attrs['class'] .= " {$list['class']}";
 		}
 		
 		return $this->printCustomPageBarListLinks( $list['links'], $attrs, "			", isset( $list['bad_hook'] ) ? $list['bad_hook'] : 'MonacoAfterArticleLinks' );
@@ -1174,29 +1192,29 @@ if ( $user->isAnon() ) {
 		$html .= Html::openElement( 'ul', $attrs );
 		$html .= "\n";
 		foreach ( $links as $link ) {
-			if ( isset($link["links"]) ) {
-				$link["class"] = trim("{$link["class"]} hovermenu");
+			if ( isset($link['links']) ) {
+				$link['class'] = trim("{$link['class']} hovermenu");
 			}
 			$liAttrs = [
-				"id" => isset($link["id"]) ? $link["id"] : null,
-				"class" => isset($link["class"]) ? $link["class"] : null,
+				'id' => isset($link['id']) ? $link['id'] : null,
+				'class' => isset($link['class']) ? $link['class'] : null,
 			];
 			$aAttrs = [
-				"href" => $link["href"],
+				'href' => $link['href'],
 			];
-			if ( isset($link["id"]) ) {
-				$aAttrs += Linker::tooltipAndAccesskeyAttribs( $link["id"] );
+			if ( isset($link['id']) ) {
+				$aAttrs += Linker::tooltipAndAccesskeyAttribs( $link['id'] );
 			}
 			$html .= "$indent	";
 			$html .= Html::openElement( 'li', $liAttrs );
-			if ( isset($link["icon"]) ) {
-				$html .= $this->blankimg( [ "class" => "sprite {$link["icon"]}", "alt" => "" ] );
+			if ( isset($link['icon']) ) {
+				$html .= $this->blankimg( [ 'class' => "sprite {$link['icon']}", 'alt' => '' ] );
 			}
-			$html .= Html::element( 'a', $aAttrs, $link["text"] );
+			$html .= Html::element( 'a', $aAttrs, $link['text'] );
 			
-			if ( isset($link["links"]) ) {
+			if ( isset($link['links']) ) {
 				$html .= $this->blankimg();
-				$html .= $this->printCustomPageBarListLinks( $link["links"], [], "$indent	" );
+				$html .= $this->printCustomPageBarListLinks( $link['links'], [], "$indent	" );
 			}
 			
 			$html .= Xml::closeElement( 'li' );
