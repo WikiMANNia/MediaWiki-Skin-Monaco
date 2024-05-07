@@ -60,11 +60,9 @@ class MonacoTemplate extends BaseTemplate {
 		Hooks::run( 'MonacoRightSidebar', [ $this ] );
 		$this->addToRightSidebar( ob_get_contents() );
 		ob_end_clean();
-		
-		$html = $this->get( 'headelement' );
 
 
-	$html .= $this->printAdditionalHead(); // @fixme not valid
+	$html = $this->printAdditionalHead(); // @fixme not valid
 
 	// this hook allows adding extra HTML just after <body> opening tag
 	// append your content to $html variable instead of echoing
@@ -184,7 +182,6 @@ if ( !empty( $custom_article_footer ) ) {
 				Html::rawElement( 'div', null,
 					wfMessage('monaco-footer-improve')->rawParams(
 						Html::element( 'a', [ 'id' => 'fe_edit_link', 'href' => $wgTitle->getEditURL() ], wfMessage('monaco-footer-improve-linktext')->text() ) )->text() ) );
-			$html .= "\n";
 		}
 
 		$myContext = $this->getSkin()->getContext();
@@ -209,18 +206,24 @@ if ( !empty( $custom_article_footer ) ) {
 					$feUserIcon = Html::rawElement( 'a', [ 'id' => 'fe_user_icon', 'href' => $userPageLink ], $feUserIcon );
 				}
 
-				$html .= '<li>' . $feUserIcon . ' <div>';
-				$html .= wfMessage( 'monaco-footer-lastedit' )->rawParams( $linkRenderer->makeLink( $userPageTitle, $user->getName(), [ 'id' => 'fe_user_link' ] ), Html::element( 'time', [ 'datetime' => wfTimestamp( TS_ISO_8601, $timestamp ) ], $lastUpdate ) )->escaped();
+				$html .= Html::rawElement( 'li', null,
+					$feUserIcon . ' ' .
+					Html::rawElement( 'div', null,
+						wfMessage( 'monaco-footer-lastedit' )->rawParams( 
+						 	$linkRenderer->makeLink( $userPageTitle, $user->getName(), [ 'id' => 'fe_user_link' ] ),
+						 	Html::element( 'time', [ 'datetime' => wfTimestamp( TS_ISO_8601, $timestamp ) ], $lastUpdate ) )->escaped() ) );
 			}
 		}
 
 		if ( $this->data['copyright'] ) {
 			$feCopyIcon = $this->blankimg( [ 'id' => 'fe_copyright_img', 'class' => 'sprite copyright', 'alt' => '' ] );
 
-			$html .= '<li>' . $feCopyIcon . ' <div id="copyright">' . $this->get( 'copyright' ) . '</div></li>';
+			$html .= Html::rawElement( 'li', null,
+				$feCopyIcon . ' ' .
+				Html::rawElement( 'div', [ 'id' => 'copyright' ], $this->get( 'copyright' ) ) );
 		}
 
-		$html .= '</ul></td><td class="col2">';
+		$html .= "</ul>\n</td>\n<td class='col2'>";
 
 		if ( !empty( $this->data['content_actions']['history'] ) || !empty( $nav_urls['recentchangeslinked'] ) ) {
 			$html .= '<ul id="articleFooterActions3" class="actions clearfix">';
@@ -230,7 +233,9 @@ if ( !empty( $custom_article_footer ) ) {
 				$feHistoryIcon = Html::rawElement( 'a', [ 'id' => 'fe_history_icon', 'href' => $this->data['content_actions']['history']['href'] ], $feHistoryIcon );
 				$feHistoryLink = Html::rawElement( 'a', [ 'id' => 'fe_history_link', 'href' => $this->data['content_actions']['history']['href'] ], $this->data['content_actions']['history']['text'] );
 
-				$html .= '<li id="fe_history">' . $feHistoryIcon . ' <div>' . $feHistoryLink . '</div></li>';
+				$html .= Html::rawElement( 'li', [ 'id' => 'fe_history' ],
+					$feHistoryIcon . ' ' .
+					Html::rawElement( 'div', null, $feHistoryLink ) );
 			}
 
 			if ( !empty( $nav_urls['recentchangeslinked'] ) ) {
@@ -238,10 +243,12 @@ if ( !empty( $custom_article_footer ) ) {
 				$feRecentIcon = Html::rawElement( 'a', [ 'id' => 'fe_recent_icon', 'href' => $nav_urls['recentchangeslinked']['href'] ], $feRecentIcon);
 				$feRecentLink = Html::rawElement( 'a', [ 'id' => 'fe_recent_link', 'href' => $nav_urls['recentchangeslinked']['href'] ], wfMessage('recentchangeslinked')->escaped());
 
-				$html .= '<li id="fe_recent">' . $feRecentIcon . ' <div>' . $feRecentLink . '</div></li>';
+				$html .= Html::rawElement( 'li', [ 'id' => 'fe_recent' ],
+					$feRecentIcon . ' ' .
+					Html::rawElement( 'div', null, $feRecentLink ) );
 			}
 
-			$html .= '</ul>';
+			$html .= "</ul>\n";
 		}
 
 		if ( !empty( $nav_urls['permalink'] ) || !empty( $nav_urls['whatlinkshere'] ) ) {
@@ -252,7 +259,9 @@ if ( !empty( $custom_article_footer ) ) {
 				$fePermaIcon = Html::rawElement( 'a', [ 'id' => 'fe_permalink_icon', 'href' => $nav_urls['permalink']['href'] ], $fePermaIcon);
 				$fePermaLink = Html::rawElement( 'a', [ 'id' => 'fe_permalink_link', 'href' => $nav_urls['permalink']['href'] ], $nav_urls['permalink']['text']);
 
-				$html .= '<li id="fe_permalink">' . $fePermaIcon . ' <div>' . $fePermaLink . '</div></li>';
+				$html .= Html::rawElement( 'li', [ 'id' => 'fe_permalink' ],
+					$fePermaIcon . ' ' .
+					Html::rawElement( 'div', null, $fePermaLink ) );
 			}
 
 			if ( !empty( $nav_urls['whatlinkshere'] ) ) {
@@ -260,9 +269,11 @@ if ( !empty( $custom_article_footer ) ) {
 				$feWhatIcon = Html::rawElement( 'a', [ 'id' => 'fe_whatlinkshere_icon', 'rel' => 'nofollow', 'href' => $nav_urls['whatlinkshere']['href'] ], $feWhatIcon);
 				$feWhatLink = Html::rawElement( 'a', [ 'id' => 'fe_whatlinkshere_link', 'rel' => 'nofollow', 'href' => $nav_urls['whatlinkshere']['href'] ], wfMessage('whatlinkshere')->escaped());
 
-				$html .= '<li id="fe_whatlinkshere">' . $feWhatIcon . ' <div>' . $feWhatLink . '</div></li>';
+				$html .= Html::rawElement( 'li', [ 'id' => 'fe_whatlinkshere' ],
+					$feWhatIcon . ' ' .
+					Html::rawElement( 'div', null, $feWhatLink ) );
 			}
-			$html .= '</ul>';
+			$html .= "</ul>\n";
 		}
 
 		$feRandIcon = $this->blankimg( [ 'id' => 'fe_random_img', 'class' => 'sprite random', 'alt' => '' ] );
@@ -270,20 +281,24 @@ if ( !empty( $custom_article_footer ) ) {
 		$feRandLink = Html::rawElement( 'a', [ 'id' => 'fe_random_link', 'href' => Skin::makeSpecialUrl( 'Randompage' ) ], wfMessage( 'viewrandompage' )->escaped() );
 
 		$html .= '<ul class="actions clearfix" id="articleFooterActions2">';
-		$html .= '<li id="fe_randompage">' . $feRandIcon . ' <div>' . $feRandLink . '</div></li>';
+		$html .= Html::rawElement( 'li', [ 'id' => 'fe_randompage' ],
+			$feRandIcon . ' ' .
+			Html::rawElement( 'div', null, $feRandLink ) );
 
 		if ( !empty( $this->get( 'mobileview' ) ) ) {
 			$feMobileIcon = $this->blankimg( [ 'id' => 'fe_mobile_img', 'class' => 'sprite mobile', 'alt' => '' ] );
 			$this->set( 'mobileview', preg_replace( '/(<a[^>]*?href[^>]*?)>/', '$1 rel="nofollow">', $this->get( 'mobileview' ) ) );
 
-			$html .= '<li id="fe_mobile">' . $feMobileIcon . ' <div>' . $this->get( 'mobileview' ) . '</div></li>';
+			$html .= Html::rawElement( 'li', [ 'id' => 'fe_mobile' ],
+				$feMobileIcon . ' ' .
+				Html::rawElement( 'div', null, $this->get( 'mobileview' ) ) );
 		}
 
-		$html .= '</ul>';
-		$html .= '</td>';
-		$html .= '</tr>';
-		$html .= '</table>';
-		$html .= '</div>';
+		$html .= "</ul>\n";
+		$html .= "</td>\n";
+		$html .= "</tr>\n";
+		$html .= "</table>\n";
+		$html .= "</div>\n";
 	} // end $namespaceType != 'none'
 } // end else from CustomArticleFooter hook
 
@@ -311,9 +326,10 @@ $this->printRightSidebar() . '
 	global $wgSitename;
 	$msgSearchLabel = wfMessage('Tooltip-search')->escaped();
 	$searchLabel = wfMessage('Tooltip-search')->isDisabled() ? (wfMessage('ilsubmit')->escaped().' '.$wgSitename.'...') : $msgSearchLabel;
+	$searchAction = SpecialPage::newSearchPage( $wgUser )->getLocalURL();
 
 			$html .= '<div id="search_box" class="color1" role="search">
-				<form action="' . $this->get('searchaction') . '" id="searchform">
+				<form action="' . $this->get( $searchAction ) . '" id="searchform">
 					<label style="display: none;" for="searchInput">' . htmlspecialchars($searchLabel) . '</label>' .
 					Html::input( 'search', '', 'search', [
 						'id' => "searchInput",
@@ -431,10 +447,10 @@ $this->printRightSidebar() . '
 				$html .= "\n";
 			}
 
-				$html .= '</ul>
-				</td>
-			</tr>
-		</tbody>';
+				$html .= "</ul>\n
+				</td>\n
+			</tr>\n
+		</tbody>\n";
 	}
 	//END: create dynamic box
 
@@ -568,16 +584,8 @@ $html .= $this->printCustomFooter();
 
 
 $html .= '</div>';
-
-$html .= $this->get('bottomscripts'); /* JS call to runBodyOnloadHook */
 Hooks::run('SpecialFooter');
 		$html .= '<div id="positioned_elements" class="reset"></div>';
-
-$html .= $this->delayedPrintCSSdownload();
-$html .= $this->get( 'reporttime' );
-
-	$html .= '</body>
-</html>';
 echo $html;
 	} // end execute()
 
@@ -848,21 +856,6 @@ echo $html;
 		}
 
 		return $data;
-	}
-
-	//@author Marooned
-	function delayedPrintCSSdownload() {
-		global $wgRequest;
-
-		//regular download
-		if ($wgRequest->getVal('printable')) {
-			// RT #18411
-			$html = $this->get('mergedCSSprint');
-			// RT #25638
-			$html .= "\n\t\t";
-			$html .= $this->get('csslinksbottom');
-			return $html;
-		}
 	}
 
 	// allow subskins to tweak dynamic links
