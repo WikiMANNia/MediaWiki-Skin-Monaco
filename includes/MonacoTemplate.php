@@ -209,7 +209,7 @@ if ( !empty( $custom_article_footer ) ) {
 					$feUserIcon = Html::rawElement( 'a', [ 'id' => 'fe_user_icon', 'href' => $userPageLink ], $feUserIcon );
 				}
 
-				$html .= '<li>' . $feUserIcon . '<div>';
+				$html .= '<li>' . $feUserIcon . ' <div>';
 				$html .= wfMessage( 'monaco-footer-lastedit' )->rawParams( $linkRenderer->makeLink( $userPageTitle, $user->getName(), [ 'id' => 'fe_user_link' ] ), Html::element( 'time', [ 'datetime' => wfTimestamp( TS_ISO_8601, $timestamp ) ], $lastUpdate ) )->escaped();
 			}
 		}
@@ -217,7 +217,7 @@ if ( !empty( $custom_article_footer ) ) {
 		if ( $this->data['copyright'] ) {
 			$feCopyIcon = $this->blankimg( [ 'id' => 'fe_copyright_img', 'class' => 'sprite copyright', 'alt' => '' ] );
 
-			$html .= '<li>' . $feCopyIcon . '<div id="copyright">' . $this->get( 'copyright' ) . '</div></li>';
+			$html .= '<li>' . $feCopyIcon . ' <div id="copyright">' . $this->get( 'copyright' ) . '</div></li>';
 		}
 
 		$html .= '</ul></td><td class="col2">';
@@ -230,7 +230,7 @@ if ( !empty( $custom_article_footer ) ) {
 				$feHistoryIcon = Html::rawElement( 'a', [ 'id' => 'fe_history_icon', 'href' => $this->data['content_actions']['history']['href'] ], $feHistoryIcon );
 				$feHistoryLink = Html::rawElement( 'a', [ 'id' => 'fe_history_link', 'href' => $this->data['content_actions']['history']['href'] ], $this->data['content_actions']['history']['text'] );
 
-				$html .= '<li id="fe_history">' . $feHistoryIcon . '<div>' . $feHistoryLink . '</div></li>';
+				$html .= '<li id="fe_history">' . $feHistoryIcon . ' <div>' . $feHistoryLink . '</div></li>';
 			}
 
 			if ( !empty( $nav_urls['recentchangeslinked'] ) ) {
@@ -238,7 +238,7 @@ if ( !empty( $custom_article_footer ) ) {
 				$feRecentIcon = Html::rawElement( 'a', [ 'id' => 'fe_recent_icon', 'href' => $nav_urls['recentchangeslinked']['href'] ], $feRecentIcon);
 				$feRecentLink = Html::rawElement( 'a', [ 'id' => 'fe_recent_link', 'href' => $nav_urls['recentchangeslinked']['href'] ], wfMessage('recentchangeslinked')->escaped());
 
-				$html .= '<li id="fe_recent">' . $feRecentIcon . '<div>' . $feRecentLink . '</div></li>';
+				$html .= '<li id="fe_recent">' . $feRecentIcon . ' <div>' . $feRecentLink . '</div></li>';
 			}
 
 			$html .= '</ul>';
@@ -252,7 +252,7 @@ if ( !empty( $custom_article_footer ) ) {
 				$fePermaIcon = Html::rawElement( 'a', [ 'id' => 'fe_permalink_icon', 'href' => $nav_urls['permalink']['href'] ], $fePermaIcon);
 				$fePermaLink = Html::rawElement( 'a', [ 'id' => 'fe_permalink_link', 'href' => $nav_urls['permalink']['href'] ], $nav_urls['permalink']['text']);
 
-				$html .= '<li id="fe_permalink">' . $fePermaIcon . '<div>' . $fePermaLink . '</div></li>';
+				$html .= '<li id="fe_permalink">' . $fePermaIcon . ' <div>' . $fePermaLink . '</div></li>';
 			}
 
 			if ( !empty( $nav_urls['whatlinkshere'] ) ) {
@@ -260,7 +260,7 @@ if ( !empty( $custom_article_footer ) ) {
 				$feWhatIcon = Html::rawElement( 'a', [ 'id' => 'fe_whatlinkshere_icon', 'rel' => 'nofollow', 'href' => $nav_urls['whatlinkshere']['href'] ], $feWhatIcon);
 				$feWhatLink = Html::rawElement( 'a', [ 'id' => 'fe_whatlinkshere_link', 'rel' => 'nofollow', 'href' => $nav_urls['whatlinkshere']['href'] ], wfMessage('whatlinkshere')->escaped());
 
-				$html .= '<li id="fe_whatlinkshere">' . $feWhatIcon . '<div>' . $feWhatLink . '</div></li>';
+				$html .= '<li id="fe_whatlinkshere">' . $feWhatIcon . ' <div>' . $feWhatLink . '</div></li>';
 			}
 			$html .= '</ul>';
 		}
@@ -270,13 +270,13 @@ if ( !empty( $custom_article_footer ) ) {
 		$feRandLink = Html::rawElement( 'a', [ 'id' => 'fe_random_link', 'href' => Skin::makeSpecialUrl( 'Randompage' ) ], wfMessage( 'viewrandompage' )->escaped() );
 
 		$html .= '<ul class="actions clearfix" id="articleFooterActions2">';
-		$html .= '<li id="fe_randompage">' . $feRandIcon . '<div>' . $feRandLink . '</div></li>';
+		$html .= '<li id="fe_randompage">' . $feRandIcon . ' <div>' . $feRandLink . '</div></li>';
 
 		if ( !empty( $this->get( 'mobileview' ) ) ) {
 			$feMobileIcon = $this->blankimg( [ 'id' => 'fe_mobile_img', 'class' => 'sprite mobile', 'alt' => '' ] );
 			$this->set( 'mobileview', preg_replace( '/(<a[^>]*?href[^>]*?)>/', '$1 rel="nofollow">', $this->get( 'mobileview' ) ) );
 
-			$html .= '<li id="fe_mobile">' . $feMobileIcon . '<div>' . $this->get( 'mobileview' ) . '</div></li>';
+			$html .= '<li id="fe_mobile">' . $feMobileIcon . ' <div>' . $this->get( 'mobileview' ) . '</div></li>';
 		}
 
 		$html .= '</ul>';
@@ -476,7 +476,7 @@ $this->printRightSidebar() . '
 				if ($val === false) {
 					$html .= '<li>&nbsp;</li>';
 				} else {
-					$html .= '<li><a' . ( !isset($val['internal']) || !$val['internal'] ? ' rel="nofollow" ' : null ) . 'href="' . htmlspecialchars($val['href']) . '" tabIndex=3>' . htmlspecialchars($val['text']) . '</a></li>';
+					$html .= '<li><a' . ( !isset($val['internal']) || !$val['internal'] ? ' rel="nofollow" ' : null ) . 'href="' . htmlspecialchars($val['href']) . '" tabIndex=3>' . htmlspecialchars($val['text']) . "</a></li>\n";
 				}
 			}
 		}
@@ -490,7 +490,7 @@ $this->printRightSidebar() . '
 					$html .= '<li>&nbsp;</li>';
 				} else {
 
-					$html .= '<li><a' . ( !isset($val['internal']) || !$val['internal'] ? ' rel="nofollow" ' : null ) . 'href="' . htmlspecialchars($val['href']) . '" tabIndex=3>' . htmlspecialchars($val['text']) . '</a></li>';
+					$html .= '<li><a' . ( !isset($val['internal']) || !$val['internal'] ? ' rel="nofollow" ' : null ) . 'href="' . htmlspecialchars($val['href']) . '" tabIndex=3>' . htmlspecialchars($val['text']) . "</a></li>\n";
 				}
 			}
 		}
