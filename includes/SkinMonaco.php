@@ -35,6 +35,11 @@ class SkinMonaco extends SkinTemplate {
 		$this->config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'monaco' );
 		$this->mUserOptionsLookup = $mUserOptionsLookup ?? MediaWikiServices::getInstance()->getUserOptionsLookup();
 
+		if ( version_compare( MW_VERSION, '1.36', '<' ) ) {
+			// Associate template - this is replaced by `template` option in 1.36
+			$this->template = MonacoTemplate::class;
+		}
+
 		parent::__construct( $options );
 	}
 
@@ -76,7 +81,7 @@ class SkinMonaco extends SkinTemplate {
 		// 2) user's personal preference/override
 		// 3) per-page usetheme URL parameter
 		$theme = $this->config->get( 'MonacoTheme' );
-		$theme = $this->mUserOptionsLookup->getOption( $user, 'theme', $theme );
+		$theme = $this->mUserOptionsLookup->getOption( $user, 'theme_monaco', $theme );
 		$theme = $request->getText( 'usetheme', $theme );
 		
 		$themes = SkinMonaco::getSkinMonacoThemeList();
