@@ -68,7 +68,7 @@ class MonacoTemplate extends BaseTemplate {
 
 	// this hook allows adding extra HTML just after <body> opening tag
 	// append your content to $html variable instead of echoing
-	Hooks::run( 'GetHTMLAfterBody', [ $this, &$html ] );
+	Hooks::run( 'GetHTMLAfterBody', [ $this ] );
 
 $html .= '<div id="skiplinks"> 
 	<a class="skiplink" href="#article" tabIndex=1>Skip to Content</a> 
@@ -490,7 +490,7 @@ $this->printRightSidebar() . '
 					$html .= '<li>&nbsp;</li>';
 				} else {
 
-					$html .= '<li><a' . ( !isset($val['internal']) || !$val['internal'] ? ' rel="nofollow" ' : null ) . 'href="' . htmlspecialchars($val['href']) . '" tabIndex=3>' . htmlspecialchars($val['text']) . "</a></li>\n";
+					$html .= '<li><a' . ( !isset($val['internal']) || !$val['internal'] ? ' rel="nofollow" ' : null ) . 'href="' . htmlspecialchars($val['href']) . '" tabIndex=3>' . htmlspecialchars($val['text']) . '</a></li>';
 				}
 			}
 		}
