@@ -1,12 +1,16 @@
 <?php
 
-class MonacoHooks {
+use MediaWiki\Hook\OutputPageBodyAttributesHook;
+
+class MonacoHooks implements
+	OutputPageBodyAttributesHook
+{
 	/**
-	 * @param OutputPage $out
-	 * @param Skin $skin
-	 * @param array &$bodyAttrs
+	 * @param OutputPage $out OutputPage which called the hook, can be used to get the real title
+	 * @param Skin $skin Skin that called OutputPage::headElement
+	 * @param string[] &$bodyAttrs Array of attributes for the body tag passed to Html::openElement
 	 */
-	public static function onOutputPageBodyAttributes( OutputPage $out, Skin $skin, &$bodyAttrs ) {
+	public function onOutputPageBodyAttributes( $out, $skin, &$bodyAttrs ): void {
 		if ( $skin->getSkinName() !== 'monaco' ) {
 			return;
 		}
