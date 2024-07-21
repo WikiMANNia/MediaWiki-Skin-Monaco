@@ -25,11 +25,13 @@ class MonacoTemplate extends BaseTemplate {
 	 * the user header and need the more button to function.
 	 * 
 	 * @author Daniel Friesen
+	 * @return bool
 	 */
 	private function useUserMore() {
-		global $wgMonacoUseMoreButton;
 
-		return $wgMonacoUseMoreButton;
+		$MonacoUseMoreButton = $this->mConfig->get( 'MonacoUseMoreButton' );
+
+		return $MonacoUseMoreButton;
 	}
 
 	public function execute() {
@@ -182,6 +184,7 @@ if ( !empty( $custom_article_footer ) ) {
 				Html::rawElement( 'div', null,
 					wfMessage('monaco-footer-improve')->rawParams(
 						Html::element( 'a', [ 'id' => 'fe_edit_link', 'href' => $wgTitle->getEditURL() ], wfMessage('monaco-footer-improve-linktext')->text() ) )->text() ) );
+			$html .= "\n";
 		}
 
 		$myContext = $this->getSkin()->getContext();
@@ -308,7 +311,7 @@ if ( !empty( $custom_article_footer ) ) {
 			<!-- /PAGE -->
 
 			<noscript><link rel="stylesheet" property="stylesheet" type="text/css" href="' . $this->get( 'stylepath' ) . '/Monaco/style/css/noscript.css?' . $wgStyleVersion . '" /></noscript>';
-	if(!($wgRequest->getVal('action') != '' || $namespace == NS_SPECIAL)) {
+	if( !( ( $wgRequest->getVal('action') != '' ) || ( $namespace == NS_SPECIAL ) ) ) {
 		$html .= $this->get('JSloader');
 		$html .= $this->get('headscripts');
 	}
@@ -316,14 +319,14 @@ if ( !empty( $custom_article_footer ) ) {
 		$html .= '</div>' .
 $this->printRightSidebar() . '
 		<!-- WIDGETS -->';
-			global $wgScriptPath;
 		$html .= '<div id="widget_sidebar" class="reset widget_sidebar left_sidebar sidebar">
 			<div id="wiki_logo" style="background-image: url(' . $this->get( 'logopath' ) . ');"><a href="' . htmlspecialchars($this->data['nav_urls']['mainpage']['href']) . '" accesskey="z" rel="home">' . $wgSitename . '</a></div>
 
 			<!-- SEARCH/NAVIGATION -->
 			<div class="widget sidebox navigation_box" id="navigation_widget" role="navigation">';
 
-	global $wgSitename;
+	$wgSitename = $this->mConfig->get( 'Sitename' );
+	$wgMonacoSearchDefaultFulltext = $this->mConfig->get( 'MonacoSearchDefaultFulltext' );
 	$msgSearchLabel = wfMessage('Tooltip-search')->escaped();
 	$searchLabel = wfMessage('Tooltip-search')->isDisabled() ? (wfMessage('ilsubmit')->escaped().' '.$wgSitename.'...') : $msgSearchLabel;
 	$searchAction = SpecialPage::newSearchPage( $wgUser )->getLocalURL();
@@ -338,10 +341,9 @@ $this->printRightSidebar() . '
 						'placeholder' => $searchLabel,
 						'tabIndex' => 2,
 						'aria-required' => 'true',
-						'aria-flowto' => "search-button",
+						'aria-flowto' => 'search-button',
 					] + Linker::tooltipAndAccesskeyAttribs('search') );
-					global $wgSearchDefaultFulltext;
-					$html .= '<input type="hidden" name="' . ( $wgSearchDefaultFulltext ? 'fulltext' : 'go' ) . '" value="1" />
+					$html .= '<input type="hidden" name="' . ( $wgMonacoSearchDefaultFulltext ? 'fulltext' : 'go' ) . '" value="1" />
 					<input type="image" alt="' . htmlspecialchars(wfMessage('search')->escaped()) . '" src="' . $this->get('blankimg') . '" id="search-button" class="sprite search" tabIndex=2 />
 				</form>
 			</div>';
@@ -356,8 +358,7 @@ $this->printRightSidebar() . '
 	$showDynamicLinks = true;
 	$dynamicLinksArray = [];
 
-	global $wgRequest;
-	if ( $wgRequest->getText( 'action' ) == 'edit' || $wgRequest->getText( 'action' ) == 'submit' ) {
+	if ( ( $wgRequest->getText( 'action' ) == 'edit' ) || ( $wgRequest->getText( 'action' ) == 'submit' ) ) {
 		$showDynamicLinks = false;
 	}
 
@@ -382,21 +383,22 @@ $this->printRightSidebar() . '
 		}
 		if ( isset($createPage) && ( $wgUser->isAllowed('edit') || $wgUser->isAnon() ) ) {
 			/* Redirect to login page instead of showing error, see Login friction project */
-			$dynamicLinksInternal["write-article"] = [
-				'url' => $wgUser->isAnon() ? SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ "returnto" => $createPage->getPrefixedDBkey() ] ) : $createPage->getLocalURL(),
+			$dynamicLinksInternal['write-article'] = [
+				'url' => $wgUser->isAnon() ? SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ 'returnto' => $createPage->getPrefixedDBkey() ] ) : $createPage->getLocalURL(),
 				'icon' => 'edit',
 			];
 		}
-		global $wgEnableUploads, $wgUploadNavigationUrl;
-		if ( ( $wgEnableUploads || $wgUploadNavigationUrl ) && ( $wgUser->isAllowed('upload') || $wgUser->isAnon() || $wgUploadNavigationUrl ) ) {
+		$EnableUploads = $this->mConfig->get( 'EnableUploads' );
+		$UploadNavigationUrl = $this->mConfig->get( 'UploadNavigationUrl' );
+		if ( ( $EnableUploads || !empty( $UploadNavigationUrl ) ) && ( $wgUser->isAllowed('upload') || $wgUser->isAnon() || $UploadNavigationUrl ) ) {
 			$uploadPage = SpecialPage::getTitleFor('Upload');
 			/* Redirect to login page instead of showing error, see Login friction project */
-			if ( $wgUploadNavigationUrl ) {
-				$url = $wgUploadNavigationUrl;
+			if ( !empty( $UploadNavigationUrl ) ) {
+				$url = $UploadNavigationUrl;
 			} else {
-				$url = $wgUser->isAnon() ? SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ "returnto" => $uploadPage->getPrefixedDBkey() ] ) : $uploadPage->getLocalURL();
+				$url = $wgUser->isAnon() ? SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ 'returnto' => $uploadPage->getPrefixedDBkey() ] ) : $uploadPage->getLocalURL();
 			}
-			$dynamicLinksInternal["add-image"] = [
+			$dynamicLinksInternal['add-image'] = [
 				'url' => $url,
 				'icon' => 'photo',
 			];
@@ -469,12 +471,12 @@ $this->printRightSidebar() . '
 		$linksArray[] = [ 'href' => $nav_urls['emailuser']['href'], 'text' => wfMessage('emailuser')->text() ];
 	}
 
-	if(is_array($linksArray) && count($linksArray) > 0) {
-		global $wgSpecialPagesRequiredLogin;
+	if( is_array($linksArray) && ( count($linksArray) > 0 ) ) {
+		$MonacoSpecialPagesRequiredLogin = $this->mConfig->get( 'MonacoSpecialPagesRequiredLogin' );
 		for ($i = 0, $max = max(array_keys($linksArray)); $i <= $max; $i++) {
 			$item = isset($linksArray[$i]) ? $linksArray[$i] : false;
 			//Redirect to login page instead of showing error, see Login friction project
-			if ( ( $item !== false ) && $wgUser->isAnon() && isset($item['specialCanonicalName']) && $wgSpecialPagesRequiredLogin && in_array($item['specialCanonicalName'], $wgSpecialPagesRequiredLogin ) ) {
+			if ( ( $item !== false ) && $wgUser->isAnon() && isset($item['specialCanonicalName']) && $MonacoSpecialPagesRequiredLogin && in_array($item['specialCanonicalName'], $MonacoSpecialPagesRequiredLogin ) ) {
 				$returnto = SpecialPage::getTitleFor($item['specialCanonicalName'])->getPrefixedDBkey();
 				$item['href'] = SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ "returnto" => $returnto ] );
 			}
@@ -505,7 +507,6 @@ $this->printRightSidebar() . '
 				if ($val === false) {
 					$html .= '<li>&nbsp;</li>';
 				} else {
-
 					$html .= '<li><a' . ( !isset($val['internal']) || !$val['internal'] ? ' rel="nofollow" ' : null ) . 'href="' . htmlspecialchars($val['href']) . '" tabIndex=3>' . htmlspecialchars($val['text']) . "</a></li>\n";
 				}
 			}
