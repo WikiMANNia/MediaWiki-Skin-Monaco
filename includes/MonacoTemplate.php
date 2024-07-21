@@ -25,6 +25,7 @@ class MonacoTemplate extends BaseTemplate {
 	 * the user header and need the more button to function.
 	 * 
 	 * @author Daniel Friesen
+	 * @return bool
 	 */
 	private function useUserMore() {
 		global $wgMonacoUseMoreButton;
@@ -324,8 +325,8 @@ $this->printRightSidebar() . '
 						'aria-required' => 'true',
 						'aria-flowto' => "search-button",
 					] + Linker::tooltipAndAccesskeyAttribs('search') );
-					global $wgSearchDefaultFulltext;
-					$html .= '<input type="hidden" name="' . ( $wgSearchDefaultFulltext ? 'fulltext' : 'go' ) . '" value="1" />
+					global $wgMonacoSearchDefaultFulltext;
+					$html .= '<input type="hidden" name="' . ( $wgMonacoSearchDefaultFulltext ? 'fulltext' : 'go' ) . '" value="1" />
 					<input type="image" alt="' . htmlspecialchars(wfMessage('search')->escaped()) . '" src="' . $this->get('blankimg') . '" id="search-button" class="sprite search" tabIndex=2 />
 				</form>
 			</div>';
@@ -454,11 +455,11 @@ $this->printRightSidebar() . '
 	}
 
 	if(is_array($linksArray) && count($linksArray) > 0) {
-		global $wgSpecialPagesRequiredLogin;
+		global $wgMonacoSpecialPagesRequiredLogin;
 		for ($i = 0, $max = max(array_keys($linksArray)); $i <= $max; $i++) {
 			$item = isset($linksArray[$i]) ? $linksArray[$i] : false;
 			//Redirect to login page instead of showing error, see Login friction project
-			if ( ( $item !== false ) && $wgUser->isAnon() && isset($item['specialCanonicalName']) && $wgSpecialPagesRequiredLogin && in_array($item['specialCanonicalName'], $wgSpecialPagesRequiredLogin ) ) {
+			if ( ( $item !== false ) && $wgUser->isAnon() && isset($item['specialCanonicalName']) && $wgMonacoSpecialPagesRequiredLogin && in_array($item['specialCanonicalName'], $wgMonacoSpecialPagesRequiredLogin ) ) {
 				$returnto = SpecialPage::getTitleFor($item['specialCanonicalName'])->getPrefixedDBkey();
 				$item['href'] = SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ "returnto" => $returnto ] );
 			}
