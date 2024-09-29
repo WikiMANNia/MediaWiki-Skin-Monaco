@@ -1,5 +1,6 @@
 <?php
 
+use MediaWiki\Config\GlobalVarConfig;
 use MediaWiki\MediaWikiServices;
 
 class MonacoTemplate extends BaseTemplate {
@@ -335,7 +336,7 @@ $this->printRightSidebar() . '
 				<form action="' . $this->get( $searchAction ) . '" id="searchform">
 					<label style="display: none;" for="searchInput">' . htmlspecialchars($searchLabel) . '</label>' .
 					Html::input( 'search', '', 'search', [
-						'id' => "searchInput",
+						'id' => 'searchInput',
 						'maxlength' => 200,
 						'aria-label' => $searchLabel,
 						'placeholder' => $searchLabel,
@@ -601,7 +602,7 @@ echo $html;
 		$parserCache = MediaWikiServices::getInstance()->getParserCache();
 
 		// We want to cache populated data only if user language is same with wiki language
-		$cache = $lang->getCode() == $contLang->getCode();
+		$cache = ( $lang->getCode() == $contLang->getCode() );
 
 		if ( $cache ) {
 			$key = ObjectCache::getLocalClusterInstance()->makeKey( 'MonacoDataOld' );
@@ -1040,7 +1041,7 @@ $html .= $this->mRightSidebar . '
 		if ( !$skin->showMasthead() ) {
 			return;
 		}
-		$wgLang = $this->getContext()->getLanguage();
+		$wgLang = $this->getSkin()->getContext()->getLanguage();
 		$user = $skin->getMastheadUser();
 		$username = $user->isAnon() ? wfMessage('masthead-anonymous-user')->text() : $user->getName();
 		$editcount = $wgLang->formatNum($user->isAnon() ? 0 : $user->getEditcount());
