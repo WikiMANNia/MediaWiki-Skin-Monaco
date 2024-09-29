@@ -1,5 +1,6 @@
 <?php
 
+use MediaWiki\Config\GlobalVarConfig;
 use MediaWiki\MediaWikiServices;
 
 class MonacoTemplate extends BaseTemplate {
@@ -28,9 +29,10 @@ class MonacoTemplate extends BaseTemplate {
 	 * @return bool
 	 */
 	private function useUserMore() {
-		global $wgMonacoUseMoreButton;
 
-		return $wgMonacoUseMoreButton;
+		$MonacoUseMoreButton = $this->mConfig->get( 'MonacoUseMoreButton' );
+
+		return $MonacoUseMoreButton;
 	}
 
 	public function execute() {
@@ -294,7 +296,7 @@ if ( !empty( $custom_article_footer ) ) {
 			<!-- /PAGE -->
 
 			<noscript><link rel="stylesheet" property="stylesheet" type="text/css" href="' . $this->get( 'stylepath' ) . '/Monaco/style/css/noscript.css?' . $wgStyleVersion . '" /></noscript>';
-	if(!($wgRequest->getVal('action') != '' || $namespace == NS_SPECIAL)) {
+	if( !( ( $wgRequest->getVal('action') != '' ) || ( $namespace == NS_SPECIAL ) ) ) {
 		$html .= $this->get('JSloader');
 		$html .= $this->get('headscripts');
 	}
@@ -317,13 +319,13 @@ $this->printRightSidebar() . '
 				<form action="' . $this->get('searchaction') . '" id="searchform">
 					<label style="display: none;" for="searchInput">' . htmlspecialchars($searchLabel) . '</label>' .
 					Html::input( 'search', '', 'search', [
-						'id' => "searchInput",
+						'id' => 'searchInput',
 						'maxlength' => 200,
 						'aria-label' => $searchLabel,
 						'placeholder' => $searchLabel,
 						'tabIndex' => 2,
 						'aria-required' => 'true',
-						'aria-flowto' => "search-button",
+						'aria-flowto' => 'search-button',
 					] + Linker::tooltipAndAccesskeyAttribs('search') );
 					global $wgMonacoSearchDefaultFulltext;
 					$html .= '<input type="hidden" name="' . ( $wgMonacoSearchDefaultFulltext ? 'fulltext' : 'go' ) . '" value="1" />
@@ -342,7 +344,7 @@ $this->printRightSidebar() . '
 	$dynamicLinksArray = [];
 
 	global $wgRequest;
-	if ( $wgRequest->getText( 'action' ) == 'edit' || $wgRequest->getText( 'action' ) == 'submit' ) {
+	if ( ( $wgRequest->getText( 'action' ) == 'edit' ) || ( $wgRequest->getText( 'action' ) == 'submit' ) ) {
 		$showDynamicLinks = false;
 	}
 
@@ -367,7 +369,7 @@ $this->printRightSidebar() . '
 		}
 		if ( isset($createPage) && ( $wgUser->isAllowed('edit') || $wgUser->isAnon() ) ) {
 			/* Redirect to login page instead of showing error, see Login friction project */
-			$dynamicLinksInternal["write-article"] = [
+			$dynamicLinksInternal['write-article'] = [
 				'url' => $wgUser->isAnon() ? SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ "returnto" => $createPage->getPrefixedDBkey() ] ) : $createPage->getLocalURL(),
 				'icon' => 'edit',
 			];
@@ -381,7 +383,7 @@ $this->printRightSidebar() . '
 			} else {
 				$url = $wgUser->isAnon() ? SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ "returnto" => $uploadPage->getPrefixedDBkey() ] ) : $uploadPage->getLocalURL();
 			}
-			$dynamicLinksInternal["add-image"] = [
+			$dynamicLinksInternal['add-image'] = [
 				'url' => $url,
 				'icon' => 'photo',
 			];
@@ -454,7 +456,7 @@ $this->printRightSidebar() . '
 		$linksArray[] = [ 'href' => $nav_urls['emailuser']['href'], 'text' => wfMessage('emailuser')->text() ];
 	}
 
-	if(is_array($linksArray) && count($linksArray) > 0) {
+	if( is_array($linksArray) && ( count($linksArray) > 0 ) ) {
 		global $wgMonacoSpecialPagesRequiredLogin;
 		for ($i = 0, $max = max(array_keys($linksArray)); $i <= $max; $i++) {
 			$item = isset($linksArray[$i]) ? $linksArray[$i] : false;
@@ -490,7 +492,6 @@ $this->printRightSidebar() . '
 				if ($val === false) {
 					$html .= '<li>&nbsp;</li>';
 				} else {
-
 					$html .= '<li><a' . ( !isset($val['internal']) || !$val['internal'] ? ' rel="nofollow" ' : null ) . 'href="' . htmlspecialchars($val['href']) . '" tabIndex=3>' . htmlspecialchars($val['text']) . "</a></li>\n";
 				}
 			}
@@ -593,7 +594,7 @@ echo $html;
 		$parserCache = MediaWikiServices::getInstance()->getParserCache();
 
 		// We want to cache populated data only if user language is same with wiki language
-		$cache = $lang->getCode() == $contLang->getCode();
+		$cache = ( $lang->getCode() == $contLang->getCode() );
 
 		if ( $cache ) {
 			$key = ObjectCache::getLocalClusterInstance()->makeKey( 'MonacoDataOld' );
@@ -1047,7 +1048,7 @@ $html .= $this->mRightSidebar . '
 		if ( !$skin->showMasthead() ) {
 			return;
 		}
-		$wgLang = $this->getContext()->getLanguage();
+		$wgLang = $this->getSkin()->getContext()->getLanguage();
 		$user = $skin->getMastheadUser();
 		$username = $user->isAnon() ? wfMessage('masthead-anonymous-user')->text() : $user->getName();
 		$editcount = $wgLang->formatNum($user->isAnon() ? 0 : $user->getEditcount());
