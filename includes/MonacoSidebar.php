@@ -61,7 +61,7 @@ class MonacoSidebar {
 			if ( !wfMessage( $line_temp[0] )->exists() ) {
 				$link = $line_temp[0];
 			}
-			if ( preg_match( '/^(?:' . wfUrlProtocols() . ')/', $link ) ) {
+			if ( preg_match( '/^(?:' . wfUrlProtocolsWithoutProtRel() . ')/', $link ) ) {
 				$href = $link;
 			} else {
 				$title = Title::newFromText( $link );
@@ -472,7 +472,7 @@ class MonacoSidebar {
 			$link = $lineTmp[0];
 		}
 
-		if ( preg_match( '/^(?:' . wfUrlProtocols() . ')/', $link ) ) {
+		if ( preg_match( '/^(?:' . wfUrlProtocolsWithoutProtRel() . ')/', $link ) ) {
 			$href = $link;
 		} else {
 			if ( empty( $link ) ) {

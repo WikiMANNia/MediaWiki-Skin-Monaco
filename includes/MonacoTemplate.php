@@ -1,6 +1,5 @@
 <?php
 
-use MediaWiki\Config\GlobalVarConfig;
 use MediaWiki\MediaWikiServices;
 
 class MonacoTemplate extends BaseTemplate {
