@@ -45,12 +45,13 @@ class MonacoTemplate extends BaseTemplate {
 
 		$this->addVariables();
 
+		$ctx = RequestContext::getMain();
 		$skin = $this->data['skin'];
 		$wgLang = $skin->getLanguage();
 		$wgUser = $skin->getUser();
-		$wgOut = $skin->getContext()->getOutput();
-		$wgRequest = $skin->getContext()->getRequest();
-		$wgTitle = $skin->getContext()->getTitle();
+		$wgOut = $ctx->getOutput();
+		$wgRequest = $ctx->getRequest();
+		$wgTitle = $ctx->getTitle();
 		$action = $wgRequest->getText( 'action' );
 		$namespace = $wgTitle->getNamespace();
 		$stylepath = $this->data['stylepath'];
@@ -187,7 +188,7 @@ if ( !empty( $custom_article_footer ) ) {
 			$html .= "\n";
 		}
 
-		$myContext = $this->getSkin()->getContext();
+		$myContext = RequestContext::getMain();
 
 		if ( $myContext->canUseWikiPage() ) {
 			$wikiPage = $myContext->getWikiPage();
@@ -348,7 +349,7 @@ $this->printRightSidebar() . '
 				</form>
 			</div>';
 	$monacoSidebar = new MonacoSidebar();
-	if(isset($this->data['content_actions']['edit'])) {
+	if( isset( $this->data['content_actions']['edit'] ) ) {
 		$monacoSidebar->editUrl = $this->data['content_actions']['edit']['href'];
 	}
 	$html .= $monacoSidebar->getCode();
@@ -591,12 +592,13 @@ echo $html;
 	} // end execute()
 
 	public function addVariables() {
+		$ctx = RequestContext::getMain();
 		$skin = $this->getSkin();
 		$user = $skin->getUser();
 		$data_array = [];
 
 		$contLang = MediaWikiServices::getInstance()->getContentLanguage();
-		$lang = $skin->getContext()->getLanguage();
+		$lang = $ctx->getLanguage();
 
 		$parserCache = MediaWikiServices::getInstance()->getParserCache();
 
@@ -1097,8 +1099,10 @@ if ( $user->isAnon() ) {
 		}
 		if ( isset( $this->data['articlelinks']['variants'] ) ) {
 			$contLang = MediaWikiServices::getInstance()->getContentLanguage();
+			$converter = MediaWikiServices::getInstance()->getLanguageConverterFactory()
+				->getLanguageConverter( $contLang );
+			$preferred = $converter->getPreferredVariant();
 
-			$preferred = $contLang->getPreferredVariant();
 			$bar[] = [
 				'id' => 'page_variants',
 				'type' => 'tabs',
