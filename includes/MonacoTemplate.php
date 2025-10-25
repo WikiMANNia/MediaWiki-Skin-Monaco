@@ -1,9 +1,12 @@
 <?php
 
 use MediaWiki\Config\GlobalVarConfig;
+use MediaWiki\Html\Html;
+use MediaWiki\Linker\Linker;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\Skin\SkinComponentUtils;
+use MediaWiki\Title\Title;
 
 class MonacoTemplate extends BaseTemplate {
 
@@ -600,7 +603,7 @@ echo $html;
 		$data_array = [];
 
 		$contLang = MediaWikiServices::getInstance()->getContentLanguage();
-		$lang = $ctx->getLanguage();
+		$lang = $skin->getLanguage();
 
 		$parserCache = MediaWikiServices::getInstance()->getParserCache();
 
