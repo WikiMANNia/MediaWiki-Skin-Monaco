@@ -74,11 +74,9 @@ Fix issue with Global Variables:
 
 2.8.2 - Sep 29, 2024
 
-Fix "Call to undefined method MonacoTemplate::getContext()" [Universal-Omega#33] (https://github.com/Universal-Omega/Monaco/pull/33)
-
-Replace "wfUrlProtocols()" with "wfUrlProtocolsWithoutProtRel()"
-
-Add i18n files
+- Fix "Call to undefined method MonacoTemplate::getContext()" [Universal-Omega#33](https://github.com/Universal-Omega/Monaco/pull/33)
+-- Replace "wfUrlProtocols()" with "wfUrlProtocolsWithoutProtRel()"
+-- Add i18n files
 
 
 2.8.3 - Mar 4, 2025
@@ -92,3 +90,5 @@ Add i18n files
 - Fix - May 2, 2015: Fix 1.44 compatibility; replace deprecated methods [Universal-Omega#37](https://github.com/Universal-Omega/Monaco/pull/37)
 -- Replace wfUrlProtocols() (hard-deprecated since 1.43) with UrlUtils->validProtocols()
 -- Replace Skin::makeSpecialUrl (deprecated since 1.39) with SkinComponentUtils::makeSpecialUrl
+
+Update some `i18n` files

@@ -590,7 +590,6 @@ echo $html;
 	} // end execute()
 
 	public function addVariables() {
-		$ctx = RequestContext::getMain();
 		$skin = $this->getSkin();
 		$user = $skin->getUser();
 		$data_array = [];
@@ -1079,7 +1078,7 @@ if ( $user->isAnon() ) {
 	function realPrintPageBar(){
 		foreach ( $this->data['articlelinks'] as $side => $links ) {
 			foreach ( $links as $key => $link ) {
-				$this->data['articlelinks'][$side][$key]['id'] = "ca-$key";
+				$this->data['articlelinks'][$side][$key]['id'] = 'ca-$key';
 				if ( $side == 'left' && !isset($link['icon']) ) {
 					$this->data['articlelinks'][$side][$key]['icon'] = $key;
 				}
