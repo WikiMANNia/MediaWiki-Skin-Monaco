@@ -85,4 +85,5 @@ Fix issue with Global Variables:
 
 2.8.4 - Oct 25, 2025
 
-Update some `i18n` files
+- Localisation updates from https://translatewiki.net/.
+- Improve logic regarding settings of $wgMonacoAllowUseTheme and $wgMonacoTheme
