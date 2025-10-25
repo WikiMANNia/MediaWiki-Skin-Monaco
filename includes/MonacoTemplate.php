@@ -29,9 +29,7 @@ class MonacoTemplate extends BaseTemplate {
 	 */
 	private function useUserMore() {
 
-		$MonacoUseMoreButton = $this->mConfig->get( 'MonacoUseMoreButton' );
-
-		return $MonacoUseMoreButton;
+		return $this->mConfig->get( 'MonacoUseMoreButton' );
 	}
 
 	public function execute() {
@@ -598,7 +596,7 @@ echo $html;
 		$data_array = [];
 
 		$contLang = MediaWikiServices::getInstance()->getContentLanguage();
-		$lang = $ctx->getLanguage();
+		$lang = $skin->getLanguage();
 
 		$parserCache = MediaWikiServices::getInstance()->getParserCache();
 

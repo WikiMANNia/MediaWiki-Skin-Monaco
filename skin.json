@@ -1,6 +1,6 @@
 {
 	"name": "Monaco",
-	"version": "2.8.3",
+	"version": "2.8.4",
 	"requires": {
 		"MediaWiki": ">= 1.39.0"
 	},
@@ -9,7 +9,6 @@
 	},
 	"author": [
 		"'''Universal Omega'''",
-		"WikiMANNia",
 		"Inez Korczyński",
 		"Christian Williams",
 		"Daniel Friesen",

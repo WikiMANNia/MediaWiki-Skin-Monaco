@@ -85,3 +85,10 @@ Add i18n files
 
 - Fix - Nov 9, 2024: "Call to undefined method MonacoTemplate::getContext()" - [Universal-Omega#34](https://github.com/Universal-Omega/Monaco/pull/34)
 - Fix - Jan 28, 2025: "Call to undefined method LanguageZh::getPreferredVariant()" - [Universal-Omega#35](https://github.com/Universal-Omega/Monaco/pull/35)
+
+
+2.8.4 - Oct 25, 2025
+
+- Fix - May 2, 2015: Fix 1.44 compatibility; replace deprecated methods [Universal-Omega#37](https://github.com/Universal-Omega/Monaco/pull/37)
+-- Replace wfUrlProtocols() (hard-deprecated since 1.43) with UrlUtils->validProtocols()
+-- Replace Skin::makeSpecialUrl (deprecated since 1.39) with SkinComponentUtils::makeSpecialUrl
