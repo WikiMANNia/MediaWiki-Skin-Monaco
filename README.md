@@ -87,8 +87,10 @@ Fix issue with Global Variables:
 
 2.8.4 - Oct 25, 2025
 
-- Fix - May 2, 2015: Fix 1.44 compatibility; replace deprecated methods [Universal-Omega#37](https://github.com/Universal-Omega/Monaco/pull/37)
--- Replace wfUrlProtocols() (hard-deprecated since 1.43) with UrlUtils->validProtocols()
+- Fix - May 2, 2015: Replace deprecated methods [Universal-Omega#37](https://github.com/Universal-Omega/Monaco/pull/37)
+-- Replace wfUrlProtocols() (deprecated since 1.39) with UrlUtils->validProtocols()
 -- Replace Skin::makeSpecialUrl (deprecated since 1.39) with SkinComponentUtils::makeSpecialUrl
+- Localisation updates from https://translatewiki.net/.
+- Improve logic regarding settings of $wgMonacoAllowUseTheme and $wgMonacoTheme
 
 Update some `i18n` files
