@@ -1,6 +1,5 @@
 <?php
 
-use MediaWiki\Config\GlobalVarConfig;
 use MediaWiki\MediaWikiServices;
 
 class MonacoTemplate extends BaseTemplate {
@@ -30,9 +29,7 @@ class MonacoTemplate extends BaseTemplate {
 	 */
 	private function useUserMore() {
 
-		$MonacoUseMoreButton = $this->mConfig->get( 'MonacoUseMoreButton' );
-
-		return $MonacoUseMoreButton;
+		return $this->mConfig->get( 'MonacoUseMoreButton' );
 	}
 
 	public function execute() {
@@ -304,7 +301,6 @@ if ( !empty( $custom_article_footer ) ) {
 		$html .= '</div>' .
 $this->printRightSidebar() . '
 		<!-- WIDGETS -->';
-			global $wgScriptPath;
 		$html .= '<div id="widget_sidebar" class="reset widget_sidebar left_sidebar sidebar">
 			<div id="wiki_logo" style="background-image: url(' . $this->get( 'logopath' ) . ');"><a href="' . htmlspecialchars($this->data['nav_urls']['mainpage']['href']) . '" accesskey="z" rel="home">' . $wgSitename . '</a></div>
 
@@ -370,7 +366,7 @@ $this->printRightSidebar() . '
 		if ( isset($createPage) && ( $wgUser->isAllowed('edit') || $wgUser->isAnon() ) ) {
 			/* Redirect to login page instead of showing error, see Login friction project */
 			$dynamicLinksInternal['write-article'] = [
-				'url' => $wgUser->isAnon() ? SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ "returnto" => $createPage->getPrefixedDBkey() ] ) : $createPage->getLocalURL(),
+				'url' => $wgUser->isAnon() ? SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ 'returnto' => $createPage->getPrefixedDBkey() ] ) : $createPage->getLocalURL(),
 				'icon' => 'edit',
 			];
 		}
@@ -381,7 +377,7 @@ $this->printRightSidebar() . '
 			if ( $wgUploadNavigationUrl ) {
 				$url = $wgUploadNavigationUrl;
 			} else {
-				$url = $wgUser->isAnon() ? SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ "returnto" => $uploadPage->getPrefixedDBkey() ] ) : $uploadPage->getLocalURL();
+				$url = $wgUser->isAnon() ? SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ 'returnto' => $uploadPage->getPrefixedDBkey() ] ) : $uploadPage->getLocalURL();
 			}
 			$dynamicLinksInternal['add-image'] = [
 				'url' => $url,
@@ -434,10 +430,10 @@ $this->printRightSidebar() . '
 				$html .= "\n";
 			}
 
-				$html .= '</ul>
-				</td>
-			</tr>
-		</tbody>';
+				$html .= "</ul>\n
+				</td>\n
+			</tr>\n
+		</tbody>\n";
 	}
 	//END: create dynamic box
 
@@ -585,11 +581,12 @@ echo $html;
 
 	public function addVariables() {
 		$ctx = RequestContext::getMain();
-		$contLang = MediaWikiServices::getInstance()->getContentLanguage();
-		$lang = $ctx->getLanguage();
 		$skin = $this->getSkin();
 		$user = $skin->getUser();
 		$data_array = [];
+
+		$contLang = MediaWikiServices::getInstance()->getContentLanguage();
+		$lang = $skin->getLanguage();
 
 		$parserCache = MediaWikiServices::getInstance()->getParserCache();
 
@@ -1048,8 +1045,7 @@ $html .= $this->mRightSidebar . '
 		if ( !$skin->showMasthead() ) {
 			return;
 		}
-		$ctx = RequestContext::getMain();
-		$wgLang = $ctx->getLanguage();
+		$wgLang = $this->getSkin()->getLanguage();
 		$user = $skin->getMastheadUser();
 		$username = $user->isAnon() ? wfMessage('masthead-anonymous-user')->text() : $user->getName();
 		$editcount = $wgLang->formatNum($user->isAnon() ? 0 : $user->getEditcount());
