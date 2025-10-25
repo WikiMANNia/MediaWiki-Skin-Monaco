@@ -94,5 +94,5 @@ Add i18n files
 -- Add namespaced imports for Html, Title and Linker (the non-namespaced aliases are removed in 1.44)
 -- Replace wfUrlProtocols() (hard-deprecated since 1.43) with UrlUtils->validProtocols()
 -- Replace Skin::makeSpecialUrl (deprecated since 1.39) with SkinComponentUtils::makeSpecialUrl
-
-Update some `i18n` files
+- Localisation updates from https://translatewiki.net/.
+- Improve logic regarding settings of $wgMonacoAllowUseTheme and $wgMonacoTheme
