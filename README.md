@@ -74,10 +74,15 @@ Fix issue with Global Variables:
 
 2.8.2 - Sep 29, 2024
 
-Fix "Call to undefined method MonacoTemplate::getContext()" [Universal-Omega#33](https://github.com/Universal-Omega/Monaco/pull/33)
+- Fix "Call to undefined method MonacoTemplate::getContext()" [Universal-Omega#33](https://github.com/Universal-Omega/Monaco/pull/33)
 
 
 2.8.3 - Mar 4, 2025
 
 - Fix - Nov 9, 2024: "Call to undefined method MonacoTemplate::getContext()" - [Universal-Omega#34](https://github.com/Universal-Omega/Monaco/pull/34)
 - Fix - Jan 28, 2025: "Call to undefined method LanguageZh::getPreferredVariant()" - [Universal-Omega#35](https://github.com/Universal-Omega/Monaco/pull/35)
+
+
+2.8.4 - Oct 25, 2025
+
+Update some `i18n` files
