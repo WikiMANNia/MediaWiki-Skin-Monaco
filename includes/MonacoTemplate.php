@@ -480,7 +480,7 @@ $this->printRightSidebar() . '
 	if ( is_array( $linksArray ) && ( count( $linksArray ) > 0 ) ) {
 		$MonacoSpecialPagesRequiredLogin = $this->mConfig->get( 'MonacoSpecialPagesRequiredLogin' );
 
-		if ( !is_array( $MonacoSpecialPagesRequiredLogin ) {
+		if ( !is_array( $MonacoSpecialPagesRequiredLogin ) ) {
 			$MonacoSpecialPagesRequiredLogin = [];
 		}
 
