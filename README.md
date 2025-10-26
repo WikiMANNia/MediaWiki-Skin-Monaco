@@ -92,5 +92,3 @@ Fix issue with Global Variables:
 -- Replace Skin::makeSpecialUrl (deprecated since 1.39) with SkinComponentUtils::makeSpecialUrl
 - Localisation updates from https://translatewiki.net/.
 - Improve logic regarding settings of $wgMonacoAllowUseTheme and $wgMonacoTheme
-
-Update some `i18n` files

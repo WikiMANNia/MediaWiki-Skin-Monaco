@@ -78,7 +78,7 @@ class SkinMonaco extends SkinTemplate {
 		
 		$request = $this->getRequest();
 		$theme_key = self::getThemeKey();
-		$themes = SkinMonaco::getSkinMonacoThemeList();
+		$themes = self::getSkinMonacoThemeList();
 		$user = RequestContext::getMain()->getUser();
 		// Check the following things in this order:
 		// 1) value of $wgMonacoTheme (set in site configuration)
