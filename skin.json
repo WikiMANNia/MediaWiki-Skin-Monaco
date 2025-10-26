@@ -168,7 +168,7 @@
 			"value": true
 		},
 		"MonacoSpecialPagesRequiredLogin": {
-			"value": true
+			"value": []
 		}
 	},
 	"Hooks": {
