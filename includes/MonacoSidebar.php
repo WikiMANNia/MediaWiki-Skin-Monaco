@@ -42,7 +42,7 @@ class MonacoSidebar {
 
 		$descText = null;
 
-		if ( count( $line_temp ) > 2 && $line_temp[2] != '' ) {
+		if ( ( count( $line_temp ) > 2 ) && ( $line_temp[2] != '' ) ) {
 			$desc = $line_temp[2];
 			if ( wfMessage( $desc )->exists() ) {
 				$descText = wfMessage( $desc )->text();

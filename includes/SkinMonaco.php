@@ -49,7 +49,7 @@ class SkinMonaco extends SkinTemplate {
 	 * @return string[]
 	 */
 	public static function getSkinMonacoThemeList() {
-		return [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire", "sky", "slate", "smoke", "spring" ];
+		return [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire", "sky", "slate", "smoke", "spring", "wima" ];
 	}
 
 	/**
@@ -177,7 +177,7 @@ class SkinMonaco extends SkinTemplate {
 	 * @param array $lines
 	 * @return array
 	 */
-	public function parseToolboxLinks( $lines ) {
+	public function parseToolboxLinks( array $lines ) {
 		$nodes = [];
 		if ( is_array( $lines ) ) {
 			foreach ( $lines as $line ) {
@@ -199,7 +199,7 @@ class SkinMonaco extends SkinTemplate {
 	 * @param string $message_key
 	 * @return array
 	 */
-	public function getLines( $message_key ) {
+	public function getLines( string $message_key ) {
 		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $message_key, NS_MEDIAWIKI ) );
 		if ( is_object( $revision ) ) {
@@ -234,7 +234,7 @@ class SkinMonaco extends SkinTemplate {
 	 * @param array &$node
 	 * @param array &$nodes
 	 */
-	public function addExtraItemsToSidebarMenu( &$node, &$nodes ) {
+	public function addExtraItemsToSidebarMenu( array &$node, array &$nodes ) {
 		$extraWords = [
 			'#voted#' => [ 'highest_ratings', 'GetTopVotedArticles' ],
 			'#popular#' => [ 'most_popular', 'GetMostPopularArticles' ],
@@ -279,7 +279,7 @@ class SkinMonaco extends SkinTemplate {
 	 * @param array $lines
 	 * @return array
 	 */
-	public function parseSidebarMenu( $lines ) {
+	public function parseSidebarMenu( array $lines ) {
 		$nodes = [];
 		$nodes[] = [];
 		$lastDepth = 0;
@@ -338,7 +338,7 @@ class SkinMonaco extends SkinTemplate {
 	 * @param bool $asArray|false
 	 * @return array|string|null
 	 */
-	public function getTransformedArticle( $name, $asArray = false ) {
+	public function getTransformedArticle( string $name, bool $asArray = false ) {
 		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $name ) );
 		$parser = MediaWikiServices::getInstance()->getParser();

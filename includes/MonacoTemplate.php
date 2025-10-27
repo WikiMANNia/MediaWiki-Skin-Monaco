@@ -315,7 +315,7 @@ if ( !empty( $custom_article_footer ) ) {
 		$html .= $this->get('headscripts');
 	}
 
-		$html .= '</div>' .
+		$html .= "</div>\n" .
 $this->printRightSidebar() . '
 		<!-- WIDGETS -->';
 		$html .= '<div id="widget_sidebar" class="reset widget_sidebar left_sidebar sidebar">
@@ -328,10 +328,10 @@ $this->printRightSidebar() . '
 	$wgMonacoSearchDefaultFulltext = $this->mConfig->get( 'MonacoSearchDefaultFulltext' );
 	$msgSearchLabel = wfMessage('Tooltip-search')->escaped();
 	$searchLabel = wfMessage('Tooltip-search')->isDisabled() ? (wfMessage('ilsubmit')->escaped().' '.$wgSitename.'...') : $msgSearchLabel;
-	$searchAction = SpecialPage::newSearchPage( $wgUser )->getLocalURL();
+	$searchAction = htmlspecialchars( SpecialPage::newSearchPage( $wgUser )->getLocalURL(), ENT_QUOTES );
 
 			$html .= '<div id="search_box" class="color1" role="search">
-				<form action="' . $this->get( $searchAction ) . '" id="searchform">
+				<form action="' . $searchAction . '" id="searchform">
 					<label style="display: none;" for="searchInput">' . htmlspecialchars($searchLabel) . '</label>' .
 					Html::input( 'search', '', 'search', [
 						'id' => 'searchInput',
@@ -343,7 +343,7 @@ $this->printRightSidebar() . '
 						'aria-flowto' => 'search-button',
 					] + Linker::tooltipAndAccesskeyAttribs('search') );
 					$html .= '<input type="hidden" name="' . ( $wgMonacoSearchDefaultFulltext ? 'fulltext' : 'go' ) . '" value="1" />
-					<input type="image" alt="' . htmlspecialchars(wfMessage('search')->escaped()) . '" src="' . $this->get('blankimg') . '" id="search-button" class="sprite search" tabIndex=2 />
+					<input type="image" alt="' . htmlspecialchars( wfMessage('search')->escaped() ) . '" src="' . $this->get('blankimg') . '" id="search-button" class="sprite search" tabIndex=2 />
 				</form>
 			</div>';
 	$monacoSidebar = new MonacoSidebar();
@@ -422,20 +422,20 @@ $this->printRightSidebar() . '
 				}
 			}
 		}
-		
+
 		foreach ( $dynamicLinksUser as $key => $value )
 			$dynamicLinksArray[$key] = $value;
 		foreach ( $dynamicLinksInternal as $key => $value )
 			$dynamicLinksArray[$key] = $value;
 	}
 
-	if (count($dynamicLinksArray) > 0) {
+	if ( count( $dynamicLinksArray ) > 0 ) {
 
 	$html .= '<tbody id="link_box_dynamic">
 			<tr>
 				<td colspan="2">
 					<ul>';
-			foreach ($dynamicLinksArray as $key => $link) {
+			foreach ( $dynamicLinksArray as $key => $link ) {
 				$link['id'] = "dynamic-links-$key";
 				if ( !isset($link['text']) )
 					$link['text'] = wfMessage("dynamic-links-$key")->text();
@@ -478,9 +478,14 @@ $this->printRightSidebar() . '
 		}
 
 		for ( $i = 0, $max = max( array_keys( $linksArray ) ); $i <= $max; $i++ ) {
-			$item = isset($linksArray[$i]) ? $linksArray[$i] : false;
+			$item = isset( $linksArray[$i] ) ? $linksArray[$i] : false;
 			//Redirect to login page instead of showing error, see Login friction project
-			if ( ( $item !== false ) && $wgUser->isAnon() && isset($item['specialCanonicalName']) && $MonacoSpecialPagesRequiredLogin && in_array($item['specialCanonicalName'], $MonacoSpecialPagesRequiredLogin ) ) {
+			if (	( $item !== false ) &&
+					$wgUser->isAnon() &&
+					isset($item['specialCanonicalName']) &&
+					$MonacoSpecialPagesRequiredLogin &&
+					in_array( $item['specialCanonicalName'], $MonacoSpecialPagesRequiredLogin ) )
+			{
 				$returnto = SpecialPage::getTitleFor($item['specialCanonicalName'])->getPrefixedDBkey();
 				$item['href'] = SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ 'returnto' => $returnto ] );
 			}
@@ -966,17 +971,17 @@ $html .= $this->mRightSidebar . '
 		if ( $custom_user_data ) {
 			$html .= $custom_user_data;
 		} else {
-			
+
 			// Output the facebook connect links that were added with PersonalUrls.
 			// @author Sean Colombo
-			foreach ($this->data['userlinks'] as $linkName => $linkData){
+			foreach ( $this->data['userlinks'] as $linkName => $linkData ) {
 
 				if ( !empty($linkData['html']) ){
 					$html .= $linkData['html']; 
 				}
 			}
-			
-			if ($wgUser->isRegistered()) {
+
+			if ( $wgUser->isRegistered() ) {
 				$toolbar = $this->getPersonalTools();
 
 				unset( $toolbar['preferences'] );
@@ -1037,7 +1042,7 @@ $html .= $this->mRightSidebar . '
 
 	// Made a separate method so recipes, answers, etc can override. This is for any additional CSS, Javacript, etc HTML
 	// that appears within the HEAD tag
-	function printAdditionalHead(){}
+	function printAdditionalHead() {}
 
 	function printMasthead() {
 		$skin = $this->data['skin'];
@@ -1076,11 +1081,11 @@ if ( $user->isAnon() ) {
 	}
 
 	// Made a separate method so recipes, answers, etc can override. Notably, answers turns it off.
-	function printPageBar(){
+	function printPageBar() {
 		// Allow for other skins to conditionally include it
 		return $this->realPrintPageBar();
 	}
-	function realPrintPageBar(){
+	function realPrintPageBar() {
 		foreach ( $this->data['articlelinks'] as $side => $links ) {
 			foreach ( $links as $key => $link ) {
 				$this->data['articlelinks'][$side][$key]['id'] = "ca-$key";
@@ -1236,7 +1241,7 @@ if ( $user->isAnon() ) {
 	}
 
 	// Made a separate method so recipes, answers, etc can override. Notably, answers turns it off.
-	function printFirstHeading(){
+	function printFirstHeading() {
 		if ( !$this->data['skin']->isMastheadTitleVisible() ) {
 			return;
 		}
@@ -1247,12 +1252,12 @@ if ( $user->isAnon() ) {
 	}
 
 	// Made a separate method so recipes, answers, etc can override.
-	function printContent(){
+	function printContent() {
 		return $this->get('bodytext');
 	}
 
 	// Made a separate method so recipes, answers, etc can override.
-	function printCategories(){
+	function printCategories() {
 		// Display categories
 		if ( $this->data['catlinks'] ) {
 			return $this->get('catlinks');

@@ -62,14 +62,14 @@ Version history
 - add hook GetPreferences
 - add UserOptionsLookup
 - add i18n - Translations of the themes
-- Compatibility with "Theme" extension
+- Compatibility with ´Theme´ extension
 
 
 2.8.1 - Jul 21, 2024
 
 Fix issue with Global Variables:
-* MonacoSearchDefaultFulltext
-* MonacoSpecialPagesRequiredLogin
+* ´MonacoSearchDefaultFulltext´
+* ´MonacoSpecialPagesRequiredLogin´
 
 
 2.8.2 - Sep 29, 2024
