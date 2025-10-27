@@ -1,7 +1,7 @@
 <?php
-
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Title\Title;
 use MediaWiki\User\UserOptionsLookup;
 
 class SkinMonaco extends SkinTemplate {
@@ -13,23 +13,15 @@ class SkinMonaco extends SkinTemplate {
 		return [];
 	}
 
-	function getCopyrightIcon() {}
-	function getPoweredBy() {}
-	function disclaimerLink() {}
-	function privacyLink() {}
-	function aboutLink() {}
-	function getHostedBy() {}
-	function diggsLink() {}
-	function deliciousLink() {}
-
 	/**
 	 * @var Config
 	 */
- 	private $config;
+	private $config;
 
 	private $mMastheadUser;
-	private $mMastheadTitleVisible;
+	private bool $mMastheadTitleVisible;
 	private UserOptionsLookup $mUserOptionsLookup;
+	private int $lastExtraIndex = 1000;
 
 	public function __construct( array $options = [] ) {
 		$this->config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'monaco' );
@@ -69,7 +61,7 @@ class SkinMonaco extends SkinTemplate {
 		// to do those manually.
 		$out->addStyle( 'Monaco/style/css/monaco_ie8.css', 'screen', 'IE 8' );
 		$out->addStyle( 'Monaco/style/css/monaco_gteie8.css', 'screen', 'gte IE 8');
-		
+
 		// Likewise the masthead is a conditional feature so it's hard to include
 		// inside of the ResourceLoader.
 		if ( $this->showMasthead() ) {
@@ -153,7 +145,8 @@ class SkinMonaco extends SkinTemplate {
 				$this->mMastheadTitleVisible = false;
 			} else {
 				$this->mMastheadUser = false;
-				$this->mMastheadTitleVisible = true; // title is visible anyways if we're not on a masthead using page
+				// title is visible anyways if we're not on a masthead using page
+				$this->mMastheadTitleVisible = true;
 			}
 		}
 
@@ -182,12 +175,12 @@ class SkinMonaco extends SkinTemplate {
 		if ( is_array( $lines ) ) {
 			foreach ( $lines as $line ) {
 				$trimmed = trim( $line, ' *' );
-				if ( strlen( $trimmed ) == 0 ) { # ignore empty lines
+				# ignore empty lines
+				if ( strlen( $trimmed ) == 0 ) {
 					continue;
 				}
 
 				$item = MonacoSidebar::parseItem( $trimmed );
-
 				$nodes[] = $item;
 			}
 		}
@@ -202,8 +195,9 @@ class SkinMonaco extends SkinTemplate {
 	public function getLines( string $message_key ) {
 		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $message_key, NS_MEDIAWIKI ) );
+
 		if ( is_object( $revision ) ) {
-			$content = $revision->getContent( SlotRecord::MAIN ); 
+			$content = $revision->getContent( SlotRecord::MAIN );
 			$text = ContentHandler::getContentText( $content );
 
 			if ( trim( $text ) != '' ) {
@@ -228,8 +222,6 @@ class SkinMonaco extends SkinTemplate {
 		return $this->parseToolboxLinks( $this->getLines( 'Monaco-toolbox' ) );
 	}
 
-	var $lastExtraIndex = 1000;
-
 	/**
 	 * @param array &$node
 	 * @param array &$nodes
@@ -248,16 +240,21 @@ class SkinMonaco extends SkinTemplate {
 				if ( strtolower( $node['org'] ) == strtolower( $node['text'] ) ) {
 					$node['text'] = wfMessage( trim( strtolower( $node['org'] ), ' *' ) )->text();
 				}
-
 				$node['magic'] = true;
 			}
 
-			$results = DataProvider::$extraWords[strtolower($node['org'])][1]();
-			$results[] = [ 'url' => SpecialPage::getTitleFor( 'Top/'.$extraWords[ strtolower( $node['org'] ) ][0] )->getLocalURL(), 'text' => strtolower( wfMessage( 'moredotdotdot' )->text() ), 'class' => 'Monaco-sidebar_more' ];
+			$results = DataProvider::$extraWords[strtolower( $node['org'] )][1]();
+			$results[] = [
+				'url' => SpecialPage::getTitleFor( 'Top/' . $extraWords[ strtolower( $node['org'] ) ][0] )->getLocalURL(),
+				'text' => strtolower( wfMessage( 'moredotdotdot' )->text() ), 'class' => 'Monaco-sidebar_more'
+			];
 
 			if ( $this->getUser()->isAllowed( 'editinterface' ) ) {
 				if ( strtolower( $node['org'] ) == '#popular#' ) {
-					$results[] = [ 'url' => Title::makeTitle( NS_MEDIAWIKI, 'Most popular articles' )->getLocalUrl(), 'text' => wfMessage( 'monaco-edit-this-menu' )->text(), 'class' => 'Monaco-sidebar_edit' ];
+					$results[] = [
+						'url' => Title::makeTitle( NS_MEDIAWIKI, 'Most popular articles' )->getLocalUrl(),
+						'text' => wfMessage( 'monaco-edit-this-menu' )->text(), 'class' => 'Monaco-sidebar_edit'
+					];
 				}
 			}
 
@@ -287,7 +284,8 @@ class SkinMonaco extends SkinTemplate {
 
 		if ( is_array( $lines ) ) {
 			foreach ( $lines as $line ) {
-				if ( strlen( $line ) == 0 ) { # ignore empty lines
+				# ignore empty lines
+				if ( strlen( $line ) == 0 ) {
 					continue;
 				}
 
@@ -304,7 +302,6 @@ class SkinMonaco extends SkinTemplate {
 							$node['parentIndex'] = 0;
 							break;
 						}
-
 						if ( $nodes[$x]['depth'] == $node['depth'] - 1 ) {
 							$node['parentIndex'] = $x;
 							break;
@@ -312,7 +309,7 @@ class SkinMonaco extends SkinTemplate {
 					}
 				}
 
-				if ( substr( $node['org'],0,1 ) == '#' ) {
+				if ( substr( $node['org'], 0, 1 ) == '#' ) {
 					$this->addExtraItemsToSidebarMenu( $node, $nodes );
 				}
 
@@ -335,7 +332,7 @@ class SkinMonaco extends SkinTemplate {
 
 	/**
 	 * @param string $name
-	 * @param bool $asArray|false
+	 * @param bool $asArray
 	 * @return array|string|null
 	 */
 	public function getTransformedArticle( string $name, bool $asArray = false ) {
