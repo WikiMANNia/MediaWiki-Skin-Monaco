@@ -52,3 +52,49 @@ Legacy
 A fork [maintained by haleyjd](https://github.com/haleyjd/monaco-port) supports MediaWiki versions 1.24 to 1.29 officially, with verified support for 1.30+ in the works.
 
 This is an unbranded fork of the Monaco skin originally developed by Wikia (now [Fandom](https://en.wikipedia.org/wiki/Fandom_(website))) which is being maintained for use at [DoomWiki.org](http://doomwiki.org/). It was also previously deployed at the Orain non-profit wiki farm before it went offline.
+
+Version history
+------
+
+2.8.0 - May 11, 2024
+
+- Themes activated
+- add hook GetPreferences
+- add UserOptionsLookup
+- add i18n - Translations of the themes
+- Compatibility with ´Theme´ extension
+
+
+2.8.1 - Jul 21, 2024
+
+Fix issue with Global Variables:
+* ´MonacoSearchDefaultFulltext´
+* ´MonacoSpecialPagesRequiredLogin´
+
+Add i18n files
+
+
+2.8.2 - Sep 29, 2024
+
+- Fix "Call to undefined method MonacoTemplate::getContext()" [Universal-Omega#33](https://github.com/Universal-Omega/Monaco/pull/33)
+-- Replace "wfUrlProtocols()" with "wfUrlProtocolsWithoutProtRel()"
+-- Substituted deprecated function "Skin::makeSpecialUrl()" into "SkinComponentUtils::makeSpecialUrl()"
+-- Add i18n files
+
+
+2.8.3 - Mar 4, 2025
+
+- Fix - Nov 9, 2024: "Call to undefined method MonacoTemplate::getContext()" - [Universal-Omega#34](https://github.com/Universal-Omega/Monaco/pull/34)
+- Fix - Jan 28, 2025: "Call to undefined method LanguageZh::getPreferredVariant()" - [Universal-Omega#35](https://github.com/Universal-Omega/Monaco/pull/35)
+
+
+2.8.4 - Oct 27, 2025
+
+- Fix - Oct 26, 2025: Fix search bar not redirecting to Special:Search [Universal-Omega#38](https://github.com/Universal-Omega/Monaco/issues/38)
+-- Use ENT_QUOTES since the skin currently requires 1.41 which still supports PHP 7 where ENT_QUOTES is not enabled by default.
+- Fix - May 2, 2015: Fix 1.44 compatibility; replace deprecated methods [Universal-Omega#37](https://github.com/Universal-Omega/Monaco/pull/37)
+-- Add namespaced imports for Html, Title and Linker (the non-namespaced aliases are removed in 1.44)
+-- Replace wfUrlProtocols() (hard-deprecated since 1.43) with UrlUtils->validProtocols()
+-- Replace Skin::makeSpecialUrl (deprecated since 1.39) with SkinComponentUtils::makeSpecialUrl
+- Localisation updates from https://translatewiki.net/.
+- Improve logic regarding settings of $wgMonacoAllowUseTheme and $wgMonacoTheme
