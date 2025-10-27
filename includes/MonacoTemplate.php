@@ -11,7 +11,7 @@ class MonacoTemplate extends BaseTemplate {
 
 	private Config $mConfig;
 	private string $mRightSidebar = '';
-	private int $primaryPageBarPrinted = false;
+	private bool $primaryPageBarPrinted = false;
 
 	public function __construct() {
 		$this->mConfig = new GlobalVarConfig();
@@ -148,9 +148,9 @@ class MonacoTemplate extends BaseTemplate {
 					$html .= $this->printContent();
 					$html .= $this->printCategories();
 					$html .= '<!-- end content -->';
-		if ( $this->data['dataAfterContent'] ) {
-			$html .= $this->get( 'dataAfterContent' );
-		}
+				if ( $this->data['dataAfterContent'] ) {
+					$html .= $this->get( 'dataAfterContent' );
+				}
 					$html .= '<div class="visualClear"></div>
 					</div>
 				</article>
@@ -198,9 +198,7 @@ class MonacoTemplate extends BaseTemplate {
 						Html::rawElement( 'a', [ 'id' => 'fe_edit_icon', 'href' => $title->getEditURL() ],
 							$this->blankimg( [ 'id' => 'fe_edit_img', 'class' => 'sprite edit', 'alt' => '' ] ) ) .
 						' ' .
-						Html::rawElement(
-							'div',
-							null,
+						Html::rawElement( 'div', null,
 							wfMessage( 'monaco-footer-improve' )->rawParams(
 								Html::element(
 									'a',
@@ -274,7 +272,12 @@ class MonacoTemplate extends BaseTemplate {
 
 					$html .= Html::rawElement( 'li', null,
 						$feCopyIcon . ' ' .
-						Html::rawElement( 'div', [ 'id' => 'copyright' ], $this->get( 'copyright' ) ) );
+						Html::rawElement(
+							'div',
+							[ 'id' => 'copyright' ],
+							$this->get( 'copyright' )
+						)
+					);
 				}
 
 				$html .= "</ul>\n</td>\n<td class='col2'>";
@@ -372,7 +375,7 @@ class MonacoTemplate extends BaseTemplate {
 						$feWhatLink = Html::rawElement(
 							'a',
 							[ 'id' => 'fe_whatlinkshere_link', 'rel' => 'nofollow', 'href' => $nav_urls['whatlinkshere']['href'] ],
-							wfMessage('whatlinkshere')->escaped()
+							wfMessage( 'whatlinkshere' )->escaped()
 						);
 						$html .= Html::rawElement(
 							'li',
@@ -546,7 +549,7 @@ class MonacoTemplate extends BaseTemplate {
 
 			$dynamicLinksUser = [];
 			foreach ( explode( "\n", wfMessage( 'dynamic-links' )->inContentLanguage()->text() ) as $line ) {
-				if ( !$line || $line[0] == ' ' ) {
+				if ( !$line || ( $line[0] == ' ' ) ) {
 					continue;
 				}
 				$line = trim( $line, '* ' );
@@ -578,8 +581,8 @@ class MonacoTemplate extends BaseTemplate {
 					<ul>';
 			foreach ( $dynamicLinksArray as $key => $link ) {
 				$link['id'] = "dynamic-links-$key";
-				if ( !isset( $link[ 'text' ] ) ) {
-					$link[ 'text' ] = wfMessage( "dynamic-links-$key" )->text();
+				if ( !isset( $link['text'] ) ) {
+					$link['text'] = wfMessage( "dynamic-links-$key" )->text();
 				}
 				$html .= "						";
 				$html .= Html::rawElement(
@@ -592,12 +595,14 @@ class MonacoTemplate extends BaseTemplate {
 							'id' => "{$link['id']}-img",
 							'class' => "sprite {$link['icon']}",
 							'alt' => ''
-						] ) ) . ' ' .
-						Html::element(
-							'a',
-							[ 'id' => "{$link['id']}-link", 'href' => $link['url'], 'tabIndex' => 3 ],
-							$link['text']
-						) );
+						] )
+					) . ' ' .
+					Html::element(
+						'a',
+						[ 'id' => "{$link['id']}-link", 'href' => $link['url'], 'tabIndex' => 3 ],
+						$link['text']
+					)
+				);
 				$html .= "\n";
 			}
 
@@ -1019,6 +1024,7 @@ class MonacoTemplate extends BaseTemplate {
 		// loops lets it expect anything starting with "fb*" (because we need that for facebook connect).
 		// Perhaps we should have some system to let PersonalUrls hook work again on its own?
 		// - Sean Colombo
+
 		foreach ( $this->data['personal_urls'] as $urlName => $urlData ) {
 			if ( strpos( $urlName, 'fb' ) === 0 ) {
 				$data[$urlName] = $urlData;
@@ -1053,7 +1059,7 @@ class MonacoTemplate extends BaseTemplate {
 		return '';
 	}
 
-	function sidebarBox( $bar, $cont, array $options = [] ) {
+	function sidebarBox( $bar, $cont, $options = [] ) {
 		$titleClass = 'sidebox_title';
 		$contentClass = 'sidebox_contents';
 		if ( isset( $options['widget'] ) && $options['widget'] ) {
