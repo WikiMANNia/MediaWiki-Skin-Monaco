@@ -71,6 +71,8 @@ Fix issue with Global Variables:
 * ´MonacoSearchDefaultFulltext´
 * ´MonacoSpecialPagesRequiredLogin´
 
+Add i18n files
+
 
 2.8.2 - Sep 29, 2024
 
@@ -85,8 +87,10 @@ Fix issue with Global Variables:
 - Fix - Jan 28, 2025: "Call to undefined method LanguageZh::getPreferredVariant()" - [Universal-Omega#35](https://github.com/Universal-Omega/Monaco/pull/35)
 
 
-2.8.4 - Oct 25, 2025
+2.8.4 - Oct 27, 2025
 
+- Fix - Oct 26, 2025: Fix search bar not redirecting to Special:Search [Universal-Omega#38](https://github.com/Universal-Omega/Monaco/issues/38)
+-- Use ENT_QUOTES since the skin currently requires 1.39 which supports PHP 7 where ENT_QUOTES is not enabled by default.
 - Fix - May 2, 2015: Replace deprecated methods [Universal-Omega#37](https://github.com/Universal-Omega/Monaco/pull/37)
 -- Replace wfUrlProtocols() (deprecated since 1.39) with UrlUtils->validProtocols()
 -- Replace Skin::makeSpecialUrl (deprecated since 1.39) with SkinComponentUtils::makeSpecialUrl
