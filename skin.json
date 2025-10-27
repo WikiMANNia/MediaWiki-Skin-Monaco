@@ -129,45 +129,59 @@
 	},
 	"config": {
 		"MonacoAllowUseTheme": {
+			"type": "boolean",
 			"value": true
 		},
 		"MonacoTheme": {
+			"type": "string",
 			"value": "sapphire"
 		},
 		"MonacoDynamicCreateOverride": {
+			"type": "boolean",
 			"value": false
 		},
 		"MonacoUseMoreButton": {
+			"type": "boolean",
 			"value": true
 		},
 		"MonacoUseSitenoticeIsland": {
+			"type": "boolean",
 			"value": false
 		},
 		"MonacoUseMasthead": {
+			"type": "boolean",
 			"value": true
 		},
 		"MonacoCompactSpecialPages": {
+			"type": "boolean",
 			"value": false
 		},
 		"MonacoBiggestCategoriesBlacklist": {
+			"type": "array",
 			"value": []
 		},
 		"MonacoEnablePaypal": {
+			"type": "boolean",
 			"value": false
 		},
 		"MonacoPaypalID": {
+			"type": "string",
 			"value": ""
 		},
 		"MonacoEnablePatreon": {
+			"type": "boolean",
 			"value": false
 		},
 		"MonacoPatreonURL": {
+			"type": "string",
 			"value": ""
 		},
 		"MonacoSearchDefaultFulltext": {
-			"value": true
+			"type": "boolean",
+			"value": false
 		},
 		"MonacoSpecialPagesRequiredLogin": {
+			"type": "array",
 			"value": []
 		}
 	},

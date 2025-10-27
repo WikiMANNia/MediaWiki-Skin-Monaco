@@ -190,7 +190,6 @@ if ( !empty( $custom_article_footer ) ) {
 				Html::rawElement( 'div', null,
 					wfMessage('monaco-footer-improve')->rawParams(
 						Html::element( 'a', [ 'id' => 'fe_edit_link', 'href' => $wgTitle->getEditURL() ], wfMessage('monaco-footer-improve-linktext')->text() ) )->text() ) );
-			$html .= "\n";
 		}
 
 		$myContext = RequestContext::getMain();
@@ -317,7 +316,7 @@ if ( !empty( $custom_article_footer ) ) {
 			<!-- /PAGE -->
 
 			<noscript><link rel="stylesheet" property="stylesheet" type="text/css" href="' . $this->get( 'stylepath' ) . '/Monaco/style/css/noscript.css?' . $wgStyleVersion . '" /></noscript>';
-	if ( !( ( $wgRequest->getVal('action') != '' ) || ( $namespace == NS_SPECIAL ) ) ) {
+	if( !( ( $wgRequest->getVal('action') != '' ) || ( $namespace == NS_SPECIAL ) ) ) {
 		$html .= $this->get('JSloader');
 		$html .= $this->get('headscripts');
 	}
@@ -347,14 +346,15 @@ $this->printRightSidebar() . '
 						'placeholder' => $searchLabel,
 						'tabIndex' => 2,
 						'aria-required' => 'true',
-						'aria-flowto' => 'search-button',
+						'aria-flowto' => "search-button",
 					] + Linker::tooltipAndAccesskeyAttribs('search') );
-					$html .= '<input type="hidden" name="' . ( $wgMonacoSearchDefaultFulltext ? 'fulltext' : 'go' ) . '" value="1" />
+					global $wgSearchDefaultFulltext;
+					$html .= '<input type="hidden" name="' . ( $wgSearchDefaultFulltext ? 'fulltext' : 'go' ) . '" value="1" />
 					<input type="image" alt="' . htmlspecialchars(wfMessage('search')->escaped()) . '" src="' . $this->get('blankimg') . '" id="search-button" class="sprite search" tabIndex=2 />
 				</form>
 			</div>';
 	$monacoSidebar = new MonacoSidebar( $hookContainer );
-	if ( isset( $this->data['content_actions']['edit'] ) ) {
+	if(isset($this->data['content_actions']['edit'])) {
 		$monacoSidebar->editUrl = $this->data['content_actions']['edit']['href'];
 	}
 	$html .= $monacoSidebar->getCode();
@@ -364,7 +364,8 @@ $this->printRightSidebar() . '
 	$showDynamicLinks = true;
 	$dynamicLinksArray = [];
 
-	if ( ( $wgRequest->getText( 'action' ) == 'edit' ) || ( $wgRequest->getText( 'action' ) == 'submit' ) ) {
+	global $wgRequest;
+	if ( $wgRequest->getText( 'action' ) == 'edit' || $wgRequest->getText( 'action' ) == 'submit' ) {
 		$showDynamicLinks = false;
 	}
 
@@ -373,7 +374,7 @@ $this->printRightSidebar() . '
 		
 		$MonacoDynamicCreateOverride = $this->mConfig->get( 'MonacoDynamicCreateOverride' );
 		$createPage = null;
-		if ( !wfMessage('dynamic-links-write-article-url')->isDisabled() ) {
+		if( !wfMessage('dynamic-links-write-article-url')->isDisabled() ) {
 			$createPage = Title::newFromText(wfMessage('dynamic-links-write-article-url')->text());
 		}
 		if ( !isset($createPage) && !empty($MonacoDynamicCreateOverride) ) {
@@ -389,22 +390,21 @@ $this->printRightSidebar() . '
 		}
 		if ( isset($createPage) && ( $wgUser->isAllowed('edit') || $wgUser->isAnon() ) ) {
 			/* Redirect to login page instead of showing error, see Login friction project */
-			$dynamicLinksInternal['write-article'] = [
-				'url' => $wgUser->isAnon() ? SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ 'returnto' => $createPage->getPrefixedDBkey() ] ) : $createPage->getLocalURL(),
+			$dynamicLinksInternal["write-article"] = [
+				'url' => $wgUser->isAnon() ? SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ "returnto" => $createPage->getPrefixedDBkey() ] ) : $createPage->getLocalURL(),
 				'icon' => 'edit',
 			];
 		}
-		$EnableUploads = $this->mConfig->get( 'EnableUploads' );
-		$UploadNavigationUrl = $this->mConfig->get( 'UploadNavigationUrl' );
-		if ( ( $EnableUploads || !empty( $UploadNavigationUrl ) ) && ( $wgUser->isAllowed('upload') || $wgUser->isAnon() || $UploadNavigationUrl ) ) {
+		global $wgEnableUploads, $wgUploadNavigationUrl;
+		if ( ( $wgEnableUploads || $wgUploadNavigationUrl ) && ( $wgUser->isAllowed('upload') || $wgUser->isAnon() || $wgUploadNavigationUrl ) ) {
 			$uploadPage = SpecialPage::getTitleFor('Upload');
 			/* Redirect to login page instead of showing error, see Login friction project */
-			if ( !empty( $UploadNavigationUrl ) ) {
-				$url = $UploadNavigationUrl;
+			if ( $wgUploadNavigationUrl ) {
+				$url = $wgUploadNavigationUrl;
 			} else {
-				$url = $wgUser->isAnon() ? SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ 'returnto' => $uploadPage->getPrefixedDBkey() ] ) : $uploadPage->getLocalURL();
+				$url = $wgUser->isAnon() ? SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ "returnto" => $uploadPage->getPrefixedDBkey() ] ) : $uploadPage->getLocalURL();
 			}
-			$dynamicLinksInternal['add-image'] = [
+			$dynamicLinksInternal["add-image"] = [
 				'url' => $url,
 				'icon' => 'photo',
 			];
@@ -423,8 +423,8 @@ $this->printRightSidebar() . '
 				$url = Title::newFromText(wfMessage("dynamic-links-$line-url")->text());
 				if ( $url ) {
 					$dynamicLinksUser[$line] = [
-						'url' => $url,
-						'icon' => 'edit', // @note Designers used messy css sprites so we can't really let this be customized easily
+						"url" => $url,
+						"icon" => "edit", // @note Designers used messy css sprites so we can't really let this be customized easily
 					];
 				}
 			}
@@ -467,42 +467,37 @@ $this->printRightSidebar() . '
 	$linksArray = $this->data['data']['toolboxlinks'];
 
 	//add user specific links
-	if ( !empty( $nav_urls['contributions'] ) ) {
+	if(!empty($nav_urls['contributions'])) {
 		$linksArray[] = [ 'href' => $nav_urls['contributions']['href'], 'text' => wfMessage('contributions')->text() ];
 	}
-	if ( !empty( $nav_urls['blockip'] ) ) {
+	if(!empty($nav_urls['blockip'])) {
 		$linksArray[] = [ 'href' => $nav_urls['blockip']['href'], 'text' => wfMessage('blockip')->text() ];
 	}
-	if ( !empty( $nav_urls['emailuser'] ) ) {
+	if(!empty($nav_urls['emailuser'])) {
 		$linksArray[] = [ 'href' => $nav_urls['emailuser']['href'], 'text' => wfMessage('emailuser')->text() ];
 	}
 
-	if ( is_array( $linksArray ) && ( count( $linksArray ) > 0 ) ) {
-		$MonacoSpecialPagesRequiredLogin = $this->mConfig->get( 'MonacoSpecialPagesRequiredLogin' );
-
-		if ( !is_array( $MonacoSpecialPagesRequiredLogin ) ) {
-			$MonacoSpecialPagesRequiredLogin = [];
-		}
-
-		for ( $i = 0, $max = max( array_keys( $linksArray ) ); $i <= $max; $i++ ) {
+	if(is_array($linksArray) && count($linksArray) > 0) {
+		global $wgSpecialPagesRequiredLogin;
+		for ($i = 0, $max = max(array_keys($linksArray)); $i <= $max; $i++) {
 			$item = isset($linksArray[$i]) ? $linksArray[$i] : false;
 			//Redirect to login page instead of showing error, see Login friction project
-			if ( ( $item !== false ) && $wgUser->isAnon() && isset($item['specialCanonicalName']) && $MonacoSpecialPagesRequiredLogin && in_array($item['specialCanonicalName'], $MonacoSpecialPagesRequiredLogin ) ) {
+			if ( ( $item !== false ) && $wgUser->isAnon() && isset($item['specialCanonicalName']) && $wgSpecialPagesRequiredLogin && in_array($item['specialCanonicalName'], $wgSpecialPagesRequiredLogin ) ) {
 				$returnto = SpecialPage::getTitleFor($item['specialCanonicalName'])->getPrefixedDBkey();
-				$item['href'] = SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ 'returnto' => $returnto ] );
+				$item['href'] = SpecialPage::getTitleFor('Userlogin')->getLocalURL( [ "returnto" => $returnto ] );
 			}
 			$i & 1 ? $linksArrayR[] = $item : $linksArrayL[] = $item;
 		}
 	}
 
-	if ( ( count( $linksArrayL ) > 0 ) || ( count( $linksArrayR ) > 0 ) ) {
+	if(count($linksArrayL) > 0 || count($linksArrayR) > 0) {
 		$html .= '<tbody id="link_box" class="color2 linkbox_static">
 			<tr>
 				<td>
 					<ul>';
-		if ( is_array( $linksArrayL ) && ( count( $linksArrayL ) > 0 ) ) {
-			foreach ( $linksArrayL as $key => $val ) {
-				if ( $val === false ) {
+		if(is_array($linksArrayL) && count($linksArrayL) > 0) {
+			foreach($linksArrayL as $key => $val) {
+				if ($val === false) {
 					$html .= '<li>&nbsp;</li>';
 				} else {
 					$html .= '<li><a' . ( !isset($val['internal']) || !$val['internal'] ? ' rel="nofollow" ' : null ) . 'href="' . htmlspecialchars($val['href']) . '" tabIndex=3>' . htmlspecialchars($val['text']) . "</a></li>\n";
@@ -513,11 +508,12 @@ $this->printRightSidebar() . '
 				</td>
 				<td>
 					<ul>';
-		if ( is_array( $linksArrayR ) && ( count( $linksArrayR ) > 0 ) ) {
-		    foreach ( $linksArrayR as $key => $val ) {
-				if ( $val === false ) {
+		if( is_array($linksArrayR) && ( count($linksArrayR) > 0 ) ) {
+		    foreach($linksArrayR as $key => $val) {
+				if ($val === false) {
 					$html .= '<li>&nbsp;</li>';
 				} else {
+
 					$html .= '<li><a' . ( !isset($val['internal']) || !$val['internal'] ? ' rel="nofollow" ' : null ) . 'href="' . htmlspecialchars($val['href']) . '" tabIndex=3>' . htmlspecialchars($val['text']) . "</a></li>\n";
 				}
 			}
@@ -607,12 +603,12 @@ echo $html;
 		$data_array = [];
 
 		$contLang = MediaWikiServices::getInstance()->getContentLanguage();
-		$lang = $skin->getLanguage();
+		$lang = $skin->getContext()->getLanguage();
 
 		$parserCache = MediaWikiServices::getInstance()->getParserCache();
 
 		// We want to cache populated data only if user language is same with wiki language
-		$cache = ( $lang->getCode() == $contLang->getCode() );
+		$cache = $lang->getCode() == $contLang->getCode();
 
 		if ( $cache ) {
 			$key = ObjectCache::getLocalClusterInstance()->makeKey( 'MonacoDataOld' );
@@ -780,14 +776,14 @@ echo $html;
 		if ( !empty( strval( $page ) ) ) {
 			$a['returnto'] = $page;
 			$query = $request->getVal( 'returntoquery' );
-			if ( empty( $query ) && !$request->wasPosted() ) {
+			if ( $query === null && !$request->wasPosted() ) {
 				$thisquery = $request->getValues();
 				unset( $thisquery['title'] );
 				unset( $thisquery['returnto'] );
 				unset( $thisquery['returntoquery'] );
 				$query = $thisquery;
 			}
-			if ( !empty( $query ) ) {
+			if( !empty( $query ) ) {
 				$a['returntoquery'] = $query;
 			}
 		}
@@ -878,11 +874,11 @@ echo $html;
 	function printExtraSidebar() {}
 	
 	function sidebarBox( $bar, $cont, $options = [] ) {
-		$titleClass = 'sidebox_title';
-		$contentClass = 'sidebox_contents';
+		$titleClass = "sidebox_title";
+		$contentClass = "sidebox_contents";
 		if ( isset($options['widget']) && $options['widget'] ) {
-			$titleClass .= ' widget_contents';
-			$contentClass .= ' widget_title';
+			$titleClass .= " widget_contents";
+			$contentClass .= " widget_title";
 		}
 		
 		$attrs = [ 'class' => 'widget sidebox' ];
@@ -941,14 +937,14 @@ echo $html;
 	
 	function printRightSidebar() {
 		if ( $this->hasRightSidebar() ) {
-			$html = '<!-- RIGHT SIDEBAR -->
+		$html = '<!-- RIGHT SIDEBAR -->
 		 <div id="right_sidebar" class="sidebar right_sidebar">' .
 $this->lateRightSidebar();
 $hookContainer->run('MonacoRightSidebar::Late', [ $this ] );
 $html .= $this->mRightSidebar . '
 		</div>
 		<!-- /RIGHT SIDEBAR -->';
-			return $html;
+return $html;
 		}
 	}
 	
@@ -971,15 +967,15 @@ $html .= $this->mRightSidebar . '
 		
 		$custom_user_data = "";
 		
-		if ( $custom_user_data ) {
+		if( $custom_user_data ) {
 			$html .= $custom_user_data;
 		} else {
 			
 			// Output the facebook connect links that were added with PersonalUrls.
 			// @author Sean Colombo
-			foreach ($this->data['userlinks'] as $linkName => $linkData){
+			foreach($this->data['userlinks'] as $linkName => $linkData){
 
-				if ( !empty($linkData['html']) ){
+				if( !empty($linkData['html']) ){
 					$html .= $linkData['html']; 
 				}
 			}
@@ -1002,7 +998,7 @@ $html .= $this->mRightSidebar . '
 						<ul>';
 
 				foreach ( $this->data['userlinks']['more'] as $key => $link ) {
-					if ($key != 'userpage') { // haleyjd 20140420: Do not repeat user page here.
+					if($key != 'userpage') { // haleyjd 20140420: Do not repeat user page here.
 						$html .= Html::rawElement( 'li', [ 'id' => "header_$key" ],
 							Html::element( 'a', [ 'href' => $link['href'] ], $link['text'] ) ) . "\n";
 					}
@@ -1013,7 +1009,7 @@ $html .= $this->mRightSidebar . '
 
 				} else {
 					foreach ( $this->data['userlinks']['more'] as $key => $link ) {
-						if ($key != 'userpage') { // haleyjd 20140420: Do not repeat user page here.
+						if($key != 'userpage') { // haleyjd 20140420: Do not repeat user page here.
 							$html .= Html::rawElement( 'span', [ 'id' => "header_$key" ],
 								Html::element( 'a', [ 'href' => $link['href'] ], $link['text'] ) ) . "\n";
 						}
@@ -1070,12 +1066,12 @@ if ( $user->isAnon() ) {
 				<ul id="user_masthead_tabs" class="nav_links">';
 
 				foreach ( $this->data['articlelinks']['right'] as $navLink ) {
-					$class = 'color1';
-					if ( isset($navLink['class']) ) {
-						$class .= " {$navLink['class']}";
+					$class = "color1";
+					if ( isset($navLink["class"]) ) {
+						$class .= " {$navLink["class"]}";
 					}
-					$html .= Html::rawElement( 'li', [ 'class' => $class ],
-						Html::element( 'a', [ 'href' => $navLink['href'] ], $navLink['text'] ) );
+					$html .= Html::rawElement( 'li', [ "class" => $class ],
+						Html::element( 'a', [ "href" => $navLink["href"] ], $navLink["text"] ) );
 				}
 				$html .= '</ul>
 			</div>';
@@ -1091,7 +1087,7 @@ if ( $user->isAnon() ) {
 	function realPrintPageBar(){
 		foreach ( $this->data['articlelinks'] as $side => $links ) {
 			foreach ( $links as $key => $link ) {
-				$this->data['articlelinks'][$side][$key]['id'] = "ca-$key";
+				$this->data['articlelinks'][$side][$key]['id'] = 'ca-$key';
 				if ( $side == 'left' && !isset($link['icon']) ) {
 					$this->data['articlelinks'][$side][$key]['icon'] = $key;
 				}
@@ -1101,10 +1097,10 @@ if ( $user->isAnon() ) {
 		$bar = [];
 		if ( isset( $this->data['articlelinks']['right'] ) ) {
 			$bar[] = [
-				'id' => 'page_tabs',
-				'type' => 'tabs',
-				'class' => 'primary_tabs',
-				'links' => $this->data['articlelinks']['right'],
+				"id" => "page_tabs",
+				"type" => "tabs",
+				"class" => "primary_tabs",
+				"links" => $this->data['articlelinks']['right'],
 			];
 		}
 		if ( isset( $this->data['articlelinks']['variants'] ) ) {
@@ -1112,17 +1108,16 @@ if ( $user->isAnon() ) {
 			$converter = MediaWikiServices::getInstance()->getLanguageConverterFactory()
 				->getLanguageConverter( $contLang );
 			$preferred = $converter->getPreferredVariant();
-
 			$bar[] = [
-				'id' => 'page_variants',
-				'type' => 'tabs',
-				'class' => 'page_variants',
-				'links' => [
+				"id" => "page_variants",
+				"type" => "tabs",
+				"class" => "page_variants",
+				"links" => [
 					[
-						'class' => 'selected',
-						'text' => $contLang->getVariantname( $preferred ),
-						'href' => $this->data['skin']->getTitle()->getLocalURL( '', $preferred ),
-						'links' => $this->data['articlelinks']['variants'],
+						"class" => 'selected',
+						"text" => $contLang->getVariantname( $preferred ),
+						"href" => $this->data['skin']->getTitle()->getLocalURL( '', $preferred ),
+						"links" => $this->data['articlelinks']['variants'],
 					]
 				]
 			];
@@ -1130,11 +1125,11 @@ if ( $user->isAnon() ) {
 
 		if ( isset( $this->data['articlelinks']['left'] ) ) {
 			$bar[] = [
-				'id' => 'page_controls',
-				'type' => 'buttons',
-				'class' => 'page_controls',
-				'bad_hook' => 'MonacoAfterArticleLinks',
-				'links' => $this->data['articlelinks']['left'],
+				"id" => "page_controls",
+				"type" => "buttons",
+				"class" => "page_controls",
+				"bad_hook" => "MonacoAfterArticleLinks",
+				"links" => $this->data['articlelinks']['left'],
 			];
 		}
 
@@ -1150,7 +1145,7 @@ if ( $user->isAnon() ) {
 		$this->primaryPageBarPrinted = true;
 		
 		$count = 0;
-		foreach ( $bar as $list ) {
+		foreach( $bar as $list ) {
 			if ( $list['links'] ) {
 				$count += count( $list['links'] );
 			}
@@ -1158,10 +1153,10 @@ if ( $user->isAnon() ) {
 		$useCompactBar = $MonacoCompactSpecialPages && ( $count == 1 );
 		$deferredList = null;
 		
-		$divClass = 'reset color1 page_bar clearfix';
+		$divClass = "reset color1 page_bar clearfix";
 		
-		foreach ( $bar as $i => $list ) {
-			if ( $useCompactBar && ( $list['id'] == 'page_tabs' ) && !empty($list['links']) && isset($list['links']['nstab-special']) ) {
+		foreach( $bar as $i => $list ) {
+			if ( $useCompactBar && $list["id"] == "page_tabs" && !empty($list["links"]) && isset($list["links"]['nstab-special']) ) {
 				$deferredList = $list;
 				$deferredList['class'] .= ' compact_page_tabs';
 				$divClass .= ' compact_page_bar';
@@ -1171,7 +1166,7 @@ if ( $user->isAnon() ) {
 		}
 		
 		$html = "		";
-		$html .= Html::openElement( 'div', [ 'id' => $isPrimary ? 'page_bar' : null, 'class' => $divClass ] );
+		$html .= Html::openElement( 'div', [ "id" => $isPrimary ? "page_bar" : null, "class" => $divClass ] );
 		$html .= "\n";
 		if ( !$useCompactBar || !isset($deferredList) ) {
 			foreach ( $bar as $list ) {
@@ -1187,16 +1182,16 @@ if ( $user->isAnon() ) {
 	}
 
 	function printCustomPageBarList( $list ) {
-		if ( !isset($list['type']) ) {
-			$list['type'] = 'buttons';
+		if ( !isset($list["type"]) ) {
+			$list["type"] = "buttons";
 		}
 		$attrs = [
-			'class' => "page_{$list['type']}",
-			'id' => $list['id'],
-			'role' => /*$list['type'] == 'tabs' ? 'navigation' :*/ 'toolbar',
+			"class" => "page_{$list["type"]}",
+			"id" => $list["id"],
+			"role" => /*$list["type"] == "tabs" ? "navigation" :*/ "toolbar",
 		];
-		if ( isset($list['class']) && $list['class'] ) {
-			$attrs['class'] .= " {$list['class']}";
+		if ( isset($list["class"]) && $list["class"] ) {
+			$attrs["class"] .= " {$list["class"]}";
 		}
 		
 		return $this->printCustomPageBarListLinks( $list['links'], $attrs, "			", isset( $list['bad_hook'] ) ? $list['bad_hook'] : 'MonacoAfterArticleLinks' );
@@ -1207,29 +1202,29 @@ if ( $user->isAnon() ) {
 		$html .= Html::openElement( 'ul', $attrs );
 		$html .= "\n";
 		foreach ( $links as $link ) {
-			if ( isset($link['links']) ) {
-				$link['class'] = trim("{$link['class']} hovermenu");
+			if ( isset($link["links"]) ) {
+				$link["class"] = trim("{$link["class"]} hovermenu");
 			}
 			$liAttrs = [
-				'id' => isset($link['id']) ? $link['id'] : null,
-				'class' => isset($link['class']) ? $link['class'] : null,
+				"id" => isset($link["id"]) ? $link["id"] : null,
+				"class" => isset($link["class"]) ? $link["class"] : null,
 			];
 			$aAttrs = [
-				'href' => $link['href'],
+				"href" => $link["href"],
 			];
-			if ( isset($link['id']) ) {
-				$aAttrs += Linker::tooltipAndAccesskeyAttribs( $link['id'] );
+			if ( isset($link["id"]) ) {
+				$aAttrs += Linker::tooltipAndAccesskeyAttribs( $link["id"] );
 			}
 			$html .= "$indent	";
 			$html .= Html::openElement( 'li', $liAttrs );
-			if ( isset($link['icon']) ) {
-				$html .= $this->blankimg( [ 'class' => "sprite {$link['icon']}", 'alt' => '' ] );
+			if ( isset($link["icon"]) ) {
+				$html .= $this->blankimg( [ "class" => "sprite {$link["icon"]}", "alt" => "" ] );
 			}
-			$html .= Html::element( 'a', $aAttrs, $link['text'] );
+			$html .= Html::element( 'a', $aAttrs, $link["text"] );
 			
-			if ( isset($link['links']) ) {
+			if ( isset($link["links"]) ) {
 				$html .= $this->blankimg();
-				$html .= $this->printCustomPageBarListLinks( $link['links'], [], "$indent	" );
+				$html .= $this->printCustomPageBarListLinks( $link["links"], [], "$indent	" );
 			}
 			
 			$html .= Xml::closeElement( 'li' );
@@ -1264,7 +1259,7 @@ if ( $user->isAnon() ) {
 	// Made a separate method so recipes, answers, etc can override.
 	function printCategories(){
 		// Display categories
-		if ( $this->data['catlinks'] ) {
+		if($this->data['catlinks']) {
 			return $this->get('catlinks');
 		}
 	}

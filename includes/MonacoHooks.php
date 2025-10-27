@@ -39,7 +39,6 @@ class MonacoHooks implements
 		$skin = $ctx->getSkin();
 		$skinName = $skin->getSkinName();
 		$themes = SkinMonaco::getSkinMonacoThemeList();
-		$theme_key = SkinMonaco::getThemeKey();
 
 		// Braindead code needed to make the theme *names* show up
 		// Without this they show up as "0", "1", etc. in the UI
@@ -76,11 +75,11 @@ class MonacoHooks implements
 			$themeArray[$themeDisplayName] = $theme;
 		}
 
-		$usersTheme = $this->userOptionsLookup->getOption( $user, $theme_key, $this->defaultTheme );
+		$usersTheme = $this->userOptionsLookup->getOption( $user, 'theme_monaco', $this->defaultTheme );
 		$showIf = [ '!==', 'skin', 'monaco' ];
 
 		// The entry 'theme' conflicts with Extension:Theme.
-		$preferences[$theme_key] = $this->allowedThemes
+		$preferences['theme_monaco'] = $this->allowedThemes
 			?	[
 					'type' => 'select',
 					'options' => $themeArray,
