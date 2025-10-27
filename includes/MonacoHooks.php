@@ -1,5 +1,4 @@
 <?php
-
 use MediaWiki\Hook\OutputPageBodyAttributesHook;
 use MediaWiki\Preferences\Hook\GetPreferencesHook;
 use MediaWiki\User\UserOptionsLookup;
@@ -8,7 +7,6 @@ class MonacoHooks implements
 	GetPreferencesHook,
 	OutputPageBodyAttributesHook
 {
-
 	private UserOptionsLookup $userOptionsLookup;
 	private bool $allowedThemes;
 	private string $defaultTheme;
@@ -30,7 +28,7 @@ class MonacoHooks implements
 	 * Add the theme selector to user preferences.
 	 *
 	 * @param User $user
-	 * @param array &$defaultPreferences
+	 * @param array &$preferences
 	 * @return bool|void True or no return value to continue or false to abort
 	 */
 	public function onGetPreferences( $user, &$preferences ) {
@@ -39,6 +37,7 @@ class MonacoHooks implements
 		$skin = $ctx->getSkin();
 		$skinName = $skin->getSkinName();
 		$themes = SkinMonaco::getSkinMonacoThemeList();
+		$theme_key = SkinMonaco::getThemeKey();
 
 		// Braindead code needed to make the theme *names* show up
 		// Without this they show up as "0", "1", etc. in the UI
@@ -63,7 +62,7 @@ class MonacoHooks implements
 		asort( $themeArray_for_sort );
 		$theme = 'default';
 		$themeDisplayNameMsg = $ctx->msg( "theme-name-$skinName-$theme" );
-		$themeDisplayName = 
+		$themeDisplayName =
 			$themeDisplayNameMsg->isDisabled()
 			? $theme
 			: $themeDisplayName = $themeDisplayNameMsg->text();
@@ -75,11 +74,11 @@ class MonacoHooks implements
 			$themeArray[$themeDisplayName] = $theme;
 		}
 
-		$usersTheme = $this->userOptionsLookup->getOption( $user, 'theme_monaco', $this->defaultTheme );
+		$usersTheme = $this->userOptionsLookup->getOption( $user, $theme_key, $this->defaultTheme );
 		$showIf = [ '!==', 'skin', 'monaco' ];
 
 		// The entry 'theme' conflicts with Extension:Theme.
-		$preferences['theme_monaco'] = $this->allowedThemes
+		$preferences[$theme_key] = $this->allowedThemes
 			?	[
 					'type' => 'select',
 					'options' => $themeArray,
@@ -88,7 +87,8 @@ class MonacoHooks implements
 					'section' => 'rendering/skin',
 					'hide-if' => $showIf
 				]
-			:	// If the selection of themes is deactiveted,
+			:
+				// If the selection of themes is deactiveted,
 				// show only an informative message instead
 				[
 					'type' => 'info',
@@ -110,28 +110,27 @@ class MonacoHooks implements
 		}
 
 		$bodyAttrs['class'] .= ' color2';
-		
+
 		$action = $skin->getRequest()->getVal( 'action' );
 		if ( in_array( $action, [ 'edit', 'history', 'diff', 'delete', 'protect', 'unprotect', 'submit' ] ) ) {
 			$bodyAttrs['class'] .= ' action_' . $action;
 		} elseif ( empty( $action ) || in_array( $action, [ 'view', 'purge' ] ) ) {
 			$bodyAttrs['class'] .= ' action_view';
 		}
-		
+
 		if ( $skin->showMasthead() ) {
 			if ( $skin->isMastheadTitleVisible() ) {
-			$bodyAttrs['class'] .= ' masthead-special';
+				$bodyAttrs['class'] .= ' masthead-special';
 			} else {
 				$bodyAttrs['class'] .= ' masthead-regular';
 			}
 		}
-		
+
 		$bodyAttrs['id'] = 'body';
 
 		if ( !$skin->getUser()->isRegistered() ) {
 			$bodyAttrs['class'] .= ' loggedout';
 		}
-
 		if ( $out->getTitle()->isMainPage() ) {
 			$bodyAttrs['class'] .= ' mainpage';
 		}

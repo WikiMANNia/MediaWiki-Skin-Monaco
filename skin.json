@@ -1,6 +1,6 @@
 {
 	"name": "Monaco",
-	"version": "2.8.4",
+	"version": "2.8.5",
 	"requires": {
 		"MediaWiki": ">= 1.41.0"
 	},
@@ -67,7 +67,7 @@
 				"desktop",
 				"mobile"
 			],
-			"position": "top",		
+			"position": "top",
 			"styles": {
 				"style/css/print.css": {
 					"media": "print"
@@ -101,7 +101,7 @@
 				},
 				"style/css/sprite.css": {
 					"media": "screen"
-				},	
+				},
 				"style/css/modal.css": {
 					"media": "screen"
 				},
