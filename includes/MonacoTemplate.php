@@ -189,6 +189,7 @@ if ( !empty( $custom_article_footer ) ) {
 		}
 
 		$myContext = RequestContext::getMain();
+
 		if ( $myContext->canUseWikiPage() ) {
 			$wikiPage = $myContext->getWikiPage();
 			$timestamp = $wikiPage->getTimestamp();
@@ -241,7 +242,7 @@ if ( !empty( $custom_article_footer ) ) {
 				$html .= '<li id="fe_recent">' . $feRecentIcon . ' <div>' . $feRecentLink . '</div></li>';
 			}
 
-			$html .= '</ul>';
+			$html .= "</ul>\n";
 		}
 
 		if ( !empty( $nav_urls['permalink'] ) || !empty( $nav_urls['whatlinkshere'] ) ) {
@@ -262,7 +263,7 @@ if ( !empty( $custom_article_footer ) ) {
 
 				$html .= '<li id="fe_whatlinkshere">' . $feWhatIcon . ' <div>' . $feWhatLink . '</div></li>';
 			}
-			$html .= '</ul>';
+			$html .= "</ul>\n";
 		}
 
 		$feRandIcon = $this->blankimg( [ 'id' => 'fe_random_img', 'class' => 'sprite random', 'alt' => '' ] );
@@ -279,11 +280,11 @@ if ( !empty( $custom_article_footer ) ) {
 			$html .= '<li id="fe_mobile">' . $feMobileIcon . ' <div>' . $this->get( 'mobileview' ) . '</div></li>';
 		}
 
-		$html .= '</ul>';
-		$html .= '</td>';
-		$html .= '</tr>';
-		$html .= '</table>';
-		$html .= '</div>';
+		$html .= "</ul>\n";
+		$html .= "</td>\n";
+		$html .= "</tr>\n";
+		$html .= "</table>\n";
+		$html .= "</div>\n";
 	} // end $namespaceType != 'none'
 } // end else from CustomArticleFooter hook
 
@@ -307,7 +308,7 @@ $this->printRightSidebar() . '
 			<!-- SEARCH/NAVIGATION -->
 			<div class="widget sidebox navigation_box" id="navigation_widget" role="navigation">';
 
-	global $wgSitename;
+	global $wgSitename, $wgMonacoSearchDefaultFulltext;
 	$msgSearchLabel = wfMessage('Tooltip-search')->escaped();
 	$searchLabel = wfMessage('Tooltip-search')->isDisabled() ? (wfMessage('ilsubmit')->escaped().' '.$wgSitename.'...') : $msgSearchLabel;
 
@@ -322,14 +323,13 @@ $this->printRightSidebar() . '
 						'tabIndex' => 2,
 						'aria-required' => 'true',
 						'aria-flowto' => 'search-button',
-					] + Linker::tooltipAndAccesskeyAttribs('search') );
-					global $wgMonacoSearchDefaultFulltext;
-					$html .= '<input type="hidden" name="' . ( $wgMonacoSearchDefaultFulltext ? 'fulltext' : 'go' ) . '" value="1" />
-					<input type="image" alt="' . htmlspecialchars(wfMessage('search')->escaped()) . '" src="' . $this->get('blankimg') . '" id="search-button" class="sprite search" tabIndex=2 />
+					] + Linker::tooltipAndAccesskeyAttribs('search') ) .
+					'<input type="hidden" name="' . ( $wgMonacoSearchDefaultFulltext ? 'fulltext' : 'go' ) . '" value="1" />
+					<input type="image" alt="' . htmlspecialchars( wfMessage('search')->escaped() ) . '" src="' . $this->get('blankimg') . '" id="search-button" class="sprite search" tabIndex=2 />
 				</form>
 			</div>';
 	$monacoSidebar = new MonacoSidebar();
-	if (isset($this->data['content_actions']['edit'])) {
+	if ( isset( $this->data['content_actions']['edit'] ) ) {
 		$monacoSidebar->editUrl = $this->data['content_actions']['edit']['href'];
 	}
 	$html .= $monacoSidebar->getCode();
@@ -404,20 +404,20 @@ $this->printRightSidebar() . '
 				}
 			}
 		}
-		
+
 		foreach ( $dynamicLinksUser as $key => $value )
 			$dynamicLinksArray[$key] = $value;
 		foreach ( $dynamicLinksInternal as $key => $value )
 			$dynamicLinksArray[$key] = $value;
 	}
 
-	if (count($dynamicLinksArray) > 0) {
+	if ( count( $dynamicLinksArray ) > 0 ) {
 
 	$html .= '<tbody id="link_box_dynamic">
 			<tr>
 				<td colspan="2">
 					<ul>';
-			foreach ($dynamicLinksArray as $key => $link) {
+			foreach ( $dynamicLinksArray as $key => $link ) {
 				$link['id'] = "dynamic-links-$key";
 				if ( !isset($link['text']) )
 					$link['text'] = wfMessage("dynamic-links-$key")->text();
@@ -862,12 +862,12 @@ echo $html;
 		global $wgRequest;
 
 		//regular download
-		if ($wgRequest->getVal('printable')) {
+		if ( $wgRequest->getVal( 'printable' ) ) {
 			// RT #18411
-			$html = $this->get('mergedCSSprint');
+			$html = $this->get( 'mergedCSSprint' );
 			// RT #25638
 			$html .= "\n\t\t";
-			$html .= $this->get('csslinksbottom');
+			$html .= $this->get( 'csslinksbottom' );
 			return $html;
 		}
 	}
@@ -975,17 +975,17 @@ $html .= $this->mRightSidebar . '
 		if ( $custom_user_data ) {
 			$html .= $custom_user_data;
 		} else {
-			
+
 			// Output the facebook connect links that were added with PersonalUrls.
 			// @author Sean Colombo
-			foreach ($this->data['userlinks'] as $linkName => $linkData){
+			foreach ( $this->data['userlinks'] as $linkName => $linkData ) {
 
 				if ( !empty($linkData['html']) ){
 					$html .= $linkData['html']; 
 				}
 			}
-			
-			if ($wgUser->isRegistered()) {
+
+			if ( $wgUser->isRegistered() ) {
 				$toolbar = $this->getPersonalTools();
 
 				unset( $toolbar['preferences'] );
@@ -1046,7 +1046,7 @@ $html .= $this->mRightSidebar . '
 
 	// Made a separate method so recipes, answers, etc can override. This is for any additional CSS, Javacript, etc HTML
 	// that appears within the HEAD tag
-	function printAdditionalHead(){}
+	function printAdditionalHead() {}
 
 	function printMasthead() {
 		$skin = $this->data['skin'];
@@ -1085,11 +1085,11 @@ if ( $user->isAnon() ) {
 	}
 
 	// Made a separate method so recipes, answers, etc can override. Notably, answers turns it off.
-	function printPageBar(){
+	function printPageBar() {
 		// Allow for other skins to conditionally include it
 		return $this->realPrintPageBar();
 	}
-	function realPrintPageBar(){
+	function realPrintPageBar() {
 		foreach ( $this->data['articlelinks'] as $side => $links ) {
 			foreach ( $links as $key => $link ) {
 				$this->data['articlelinks'][$side][$key]['id'] = "ca-$key";
@@ -1245,7 +1245,7 @@ if ( $user->isAnon() ) {
 	}
 
 	// Made a separate method so recipes, answers, etc can override. Notably, answers turns it off.
-	function printFirstHeading(){
+	function printFirstHeading() {
 		if ( !$this->data['skin']->isMastheadTitleVisible() ) {
 			return;
 		}
@@ -1256,12 +1256,12 @@ if ( $user->isAnon() ) {
 	}
 
 	// Made a separate method so recipes, answers, etc can override.
-	function printContent(){
+	function printContent() {
 		return $this->get('bodytext');
 	}
 
 	// Made a separate method so recipes, answers, etc can override.
-	function printCategories(){
+	function printCategories() {
 		// Display categories
 		if ( $this->data['catlinks'] ) {
 			return $this->get('catlinks');

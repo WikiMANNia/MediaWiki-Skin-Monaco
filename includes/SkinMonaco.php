@@ -54,7 +54,7 @@ class SkinMonaco extends SkinTemplate {
 	 * @return string[]
 	 */
 	public static function getSkinMonacoThemeList() {
-		return [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire", "sky", "slate", "smoke", "spring" ];
+		return [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire", "sky", "slate", "smoke", "spring", "wima" ];
 	}
 
 	/**
