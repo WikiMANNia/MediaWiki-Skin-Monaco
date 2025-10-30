@@ -32,6 +32,7 @@ class MonacoTemplate extends BaseTemplate {
 		return $this->mConfig->get( 'MonacoUseMoreButton' );
 	}
 
+	/** @inheritDoc */
 	public function execute() {
 
 		$sitename = $this->mConfig->get( 'Sitename' );
@@ -63,11 +64,11 @@ class MonacoTemplate extends BaseTemplate {
 		// @fixme not valid
 		$html = $this->printAdditionalHead();
 
-	// this hook allows adding extra HTML just after <body> opening tag
-	// append your content to $html variable instead of echoing
-	Hooks::run( 'GetHTMLAfterBody', [ $this, &$html ] );
+		// this hook allows adding extra HTML just after <body> opening tag
+		// append your content to $html variable instead of echoing
+		Hooks::run( 'GetHTMLAfterBody', [ $this, &$html ] );
 
-$html .= '<div id="skiplinks"> 
+		$html .= '<div id="skiplinks"> 
 	<a class="skiplink" href="#article" tabIndex=1>Skip to Content</a> 
 	<a class="skiplink wikinav" href="#widget_sidebar" tabIndex=1>Skip to Navigation</a> 
 </div>
@@ -236,9 +237,7 @@ $html .= '<div id="skiplinks">
 
 						$html .= Html::rawElement( 'li', null,
 							$feUserIcon . ' ' .
-							Html::rawElement(
-								'div',
-								null,
+							Html::rawElement( 'div', null,
 								wfMessage( 'monaco-footer-lastedit' )->rawParams(
 									$linkRenderer->makeLink(
 										$userPageTitle,
@@ -265,8 +264,7 @@ $html .= '<div id="skiplinks">
 
 					$html .= Html::rawElement( 'li', null,
 						$feCopyIcon . ' ' .
-						Html::rawElement(
-							'div',
+						Html::rawElement( 'div',
 							[ 'id' => 'copyright' ],
 							$this->get( 'copyright' )
 						)
@@ -280,23 +278,51 @@ $html .= '<div id="skiplinks">
 					$html .= '<ul id="articleFooterActions3" class="actions clearfix">';
 
 					if ( !empty( $this->data['content_actions']['history'] ) ) {
-						$feHistoryIcon = $this->blankimg( [ 'id' => 'fe_history_img', 'class' => 'sprite history', 'alt' => '' ] );
-						$feHistoryIcon = Html::rawElement( 'a', [ 'id' => 'fe_history_icon', 'href' => $this->data['content_actions']['history']['href'] ], $feHistoryIcon );
-						$feHistoryLink = Html::rawElement( 'a', [ 'id' => 'fe_history_link', 'href' => $this->data['content_actions']['history']['href'] ], $this->data['content_actions']['history']['text'] );
-
-						$html .= Html::rawElement( 'li', [ 'id' => 'fe_history' ],
+						$feHistoryIcon = $this->blankimg( [
+							'id' => 'fe_history_img',
+							'class' => 'sprite history',
+							'alt' => ''
+						] );
+						$feHistoryIcon = Html::rawElement(
+							'a',
+							[ 'id' => 'fe_history_icon', 'href' => $this->data['content_actions']['history']['href'] ],
+							$feHistoryIcon
+						);
+						$feHistoryLink = Html::rawElement(
+							'a',
+							[ 'id' => 'fe_history_link', 'href' => $this->data['content_actions']['history']['href'] ],
+							$this->data['content_actions']['history']['text']
+						);
+						$html .= Html::rawElement(
+							'li',
+							[ 'id' => 'fe_history' ],
 							$feHistoryIcon . ' ' .
-							Html::rawElement( 'div', null, $feHistoryLink ) );
+							Html::rawElement( 'div', null, $feHistoryLink )
+						);
 					}
 
 					if ( !empty( $nav_urls['recentchangeslinked'] ) ) {
-						$feRecentIcon = $this->blankimg( [ 'id' => 'fe_recent_img', 'class' => 'sprite recent', 'alt' => '' ] );
-						$feRecentIcon = Html::rawElement( 'a', [ 'id' => 'fe_recent_icon', 'href' => $nav_urls['recentchangeslinked']['href'] ], $feRecentIcon);
-						$feRecentLink = Html::rawElement( 'a', [ 'id' => 'fe_recent_link', 'href' => $nav_urls['recentchangeslinked']['href'] ], wfMessage('recentchangeslinked')->escaped());
-
-						$html .= Html::rawElement( 'li', [ 'id' => 'fe_recent' ],
+						$feRecentIcon = $this->blankimg( [
+							'id' => 'fe_recent_img',
+							'class' => 'sprite recent',
+							'alt' => ''
+						] );
+						$feRecentIcon = Html::rawElement(
+							'a',
+							[ 'id' => 'fe_recent_icon', 'href' => $nav_urls['recentchangeslinked']['href'] ],
+							$feRecentIcon
+						);
+						$feRecentLink = Html::rawElement(
+							'a',
+							[ 'id' => 'fe_recent_link', 'href' => $nav_urls['recentchangeslinked']['href'] ],
+							wfMessage( 'recentchangeslinked' )->escaped()
+						);
+						$html .= Html::rawElement(
+							'li',
+							[ 'id' => 'fe_recent' ],
 							$feRecentIcon . ' ' .
-							Html::rawElement( 'div', null, $feRecentLink ) );
+							Html::rawElement( 'div', null, $feRecentLink )
+						);
 					}
 
 					$html .= "</ul>\n";
@@ -306,21 +332,48 @@ $html .= '<div id="skiplinks">
 					$html .= '<ul id="articleFooterActions4" class="actions clearfix">';
 
 					if ( !empty( $nav_urls['permalink'] ) ) {
-						$fePermaIcon = $this->blankimg( [ 'id' => 'fe_permalink_img', 'class' => 'sprite move', 'alt' => '' ] );
-						$fePermaIcon = Html::rawElement( 'a', [ 'id' => 'fe_permalink_icon', 'href' => $nav_urls['permalink']['href'] ], $fePermaIcon );
-						$fePermaLink = Html::rawElement( 'a', [ 'id' => 'fe_permalink_link', 'href' => $nav_urls['permalink']['href'] ], $nav_urls['permalink']['text'] );
-
-						$html .= Html::rawElement( 'li', [ 'id' => 'fe_permalink' ],
+						$fePermaIcon = $this->blankimg( [
+							'id' => 'fe_permalink_img',
+							'class' => 'sprite move',
+							'alt' => ''
+						] );
+						$fePermaIcon = Html::rawElement(
+							'a',
+							[ 'id' => 'fe_permalink_icon', 'href' => $nav_urls['permalink']['href'] ],
+							$fePermaIcon
+						);
+						$fePermaLink = Html::rawElement(
+							'a',
+							[ 'id' => 'fe_permalink_link', 'href' => $nav_urls['permalink']['href'] ],
+							$nav_urls['permalink']['text']
+						);
+						$html .= Html::rawElement(
+							'li',
+							[ 'id' => 'fe_permalink' ],
 							$fePermaIcon . ' ' .
-							Html::rawElement( 'div', null, $fePermaLink ) );
+							Html::rawElement( 'div', null, $fePermaLink )
+						);
 					}
 
 					if ( !empty( $nav_urls['whatlinkshere'] ) ) {
-						$feWhatIcon = $this->blankimg( [ 'id' => 'fe_whatlinkshere_img', 'class' => 'sprite pagelink', 'alt' => '' ] );
-						$feWhatIcon = Html::rawElement( 'a', [ 'id' => 'fe_whatlinkshere_icon', 'rel' => 'nofollow', 'href' => $nav_urls['whatlinkshere']['href'] ], $feWhatIcon );
-						$feWhatLink = Html::rawElement( 'a', [ 'id' => 'fe_whatlinkshere_link', 'rel' => 'nofollow', 'href' => $nav_urls['whatlinkshere']['href'] ], wfMessage( 'whatlinkshere' )->escaped() );
-
-						$html .= Html::rawElement( 'li', [ 'id' => 'fe_whatlinkshere' ],
+						$feWhatIcon = $this->blankimg( [
+							'id' => 'fe_whatlinkshere_img',
+							'class' => 'sprite pagelink',
+							'alt' => ''
+						] );
+						$feWhatIcon = Html::rawElement(
+							'a',
+							[ 'id' => 'fe_whatlinkshere_icon', 'rel' => 'nofollow', 'href' => $nav_urls['whatlinkshere']['href'] ],
+							$feWhatIcon
+						);
+						$feWhatLink = Html::rawElement(
+							'a',
+							[ 'id' => 'fe_whatlinkshere_link', 'rel' => 'nofollow', 'href' => $nav_urls['whatlinkshere']['href'] ],
+							wfMessage( 'whatlinkshere' )->escaped()
+						);
+						$html .= Html::rawElement(
+							'li',
+							[ 'id' => 'fe_whatlinkshere' ],
 							$feWhatIcon . ' ' .
 							Html::rawElement( 'div', null, $feWhatLink )
 						);
@@ -328,22 +381,45 @@ $html .= '<div id="skiplinks">
 					$html .= "</ul>\n";
 				}
 
-				$feRandIcon = $this->blankimg( [ 'id' => 'fe_random_img', 'class' => 'sprite random', 'alt' => '' ] );
-				$feRandIcon = Html::rawElement( 'a', [ 'id' => 'fe_random_icon', 'href' => Skin::makeSpecialUrl( 'Randompage' ) ], $feRandIcon );
-				$feRandLink = Html::rawElement( 'a', [ 'id' => 'fe_random_link', 'href' => Skin::makeSpecialUrl( 'Randompage' ) ], wfMessage( 'viewrandompage' )->escaped() );
+				$feRandIcon = $this->blankimg( [
+					'id' => 'fe_random_img',
+					'class' => 'sprite random',
+					'alt' => ''
+				] );
+				$feRandIcon = Html::rawElement(
+					'a',
+					[ 'id' => 'fe_random_icon', 'href' => Skin::makeSpecialUrl( 'Randompage' ) ],
+					$feRandIcon
+				);
+				$feRandLink = Html::rawElement(
+					'a',
+					[ 'id' => 'fe_random_link', 'href' => Skin::makeSpecialUrl( 'Randompage' ) ],
+					wfMessage( 'viewrandompage' )->escaped()
+				);
 
 				$html .= '<ul class="actions clearfix" id="articleFooterActions2">';
 				$html .= Html::rawElement( 'li', [ 'id' => 'fe_randompage' ],
 					$feRandIcon . ' ' .
-					Html::rawElement( 'div', null, $feRandLink ) );
+					Html::rawElement( 'div', null, $feRandLink )
+				);
 
 				if ( !empty( $this->get( 'mobileview' ) ) ) {
-					$feMobileIcon = $this->blankimg( [ 'id' => 'fe_mobile_img', 'class' => 'sprite mobile', 'alt' => '' ] );
-					$this->set( 'mobileview', preg_replace( '/(<a[^>]*?href[^>]*?)>/', '$1 rel="nofollow">', $this->get( 'mobileview' ) ) );
-
-					$html .= Html::rawElement( 'li', [ 'id' => 'fe_mobile' ],
+					$feMobileIcon = $this->blankimg( [
+						'id' => 'fe_mobile_img',
+						'class' => 'sprite mobile',
+						'alt' => ''
+					] );
+					$this->set( 'mobileview', preg_replace(
+						'/(<a[^>]*?href[^>]*?)>/',
+						'$1 rel="nofollow">',
+						$this->get( 'mobileview' )
+					) );
+					$html .= Html::rawElement(
+						'li',
+						[ 'id' => 'fe_mobile' ],
 						$feMobileIcon . ' ' .
-						Html::rawElement( 'div', null, $this->get( 'mobileview' ) ) );
+						Html::rawElement( 'div', null, $this->get( 'mobileview' ) )
+					);
 				}
 
 				$html .= "</ul>\n";
@@ -379,10 +455,10 @@ $html .= '<div id="skiplinks">
 		$sitename = $this->mConfig->get( 'Sitename' );
 		$MonacoSearchDefaultFulltext = $this->mConfig->get( 'MonacoSearchDefaultFulltext' );
 		$msgSearchLabel = wfMessage( 'Tooltip-search' )->escaped();
+		$searchAction = SpecialPage::newSearchPage( $user )->getLocalURL();
 		$searchLabel = wfMessage( 'Tooltip-search' )->isDisabled()
 			? ( wfMessage( 'ilsubmit' )->escaped() . ' ' . $sitename . '...' )
 			: $msgSearchLabel;
-		$searchAction = SpecialPage::newSearchPage( $user )->getLocalURL();
 		$searchAction = htmlspecialchars( $searchAction, ENT_QUOTES );
 		$searchLabel = htmlspecialchars( $searchLabel );
 
@@ -479,7 +555,7 @@ $html .= '<div id="skiplinks">
 						$dynamicLinksUser[$line] = [
 							'url' => $url,
 							// @note Designers used messy css sprites so we can't really let this be customized easily
-							'icon' => 'edit',
+							'icon' => 'edit'
 						];
 					}
 				}
@@ -505,11 +581,24 @@ $html .= '<div id="skiplinks">
 					$link['text'] = wfMessage( "dynamic-links-$key" )->text();
 				}
 				$html .= "						";
-				$html .= Html::rawElement( 'li', [ 'id' => "{$link['id']}-row", 'class' => 'link_box_dynamic_item' ],
-					Html::rawElement( 'a', [ 'id' => "{$link['id']}-icon", 'href' => $link['url'], 'tabIndex' => -1 ],
-						$this->blankimg( [ 'id' => "{$link['id']}-img", 'class' => "sprite {$link['icon']}", 'alt' => '' ] ) ) .
-					' ' .
-					Html::element( 'a', [ 'id' => "{$link['id']}-link", 'href' => $link['url'], 'tabIndex' => 3 ], $link['text'] ) );
+				$html .= Html::rawElement(
+					'li',
+					[ 'id' => "{$link['id']}-row", 'class' => 'link_box_dynamic_item' ],
+					Html::rawElement(
+						'a',
+						[ 'id' => "{$link['id']}-icon", 'href' => $link['url'], 'tabIndex' => -1 ],
+						$this->blankimg( [
+							'id' => "{$link['id']}-img",
+							'class' => "sprite {$link['icon']}",
+							'alt' => ''
+						] )
+					) . ' ' .
+					Html::element(
+						'a',
+						[ 'id' => "{$link['id']}-link", 'href' => $link['url'], 'tabIndex' => 3 ],
+						$link['text']
+					)
+				);
 				$html .= "\n";
 			}
 
@@ -668,9 +757,9 @@ $html .= '<div id="skiplinks">
 			<!-- /SEARCH/NAVIGATION -->' .
 		$this->printExtraSidebar();
 		Hooks::run( 'MonacoSidebarEnd', [ $this, &$html ] );
-		$html .= '</div>
-		<!-- /WIDGETS -->
-	<!--/div-->';
+		$html .= "</div>\n
+		<!-- /WIDGETS -->\n
+	<!--/div-->\n";
 
 // curse like cobranding
 		$html .= $this->printCustomFooter();
@@ -1006,6 +1095,7 @@ $html .= '<div id="skiplinks">
 		}
 		$box .= $boxContent;
 		$box .= Xml::closeElement( 'div ' );
+
 		return $box;
 	}
 
@@ -1058,7 +1148,7 @@ $html .= '<div id="skiplinks">
 		$skin = $this->data['skin'];
 		$user = $skin->getUser();
 		$html = '<div id="userData">';
-		
+
 		$custom_user_data = "";
 
 		if ( $custom_user_data ) {
@@ -1082,7 +1172,7 @@ $html .= '<div id="skiplinks">
 				foreach ( $toolbar as $key => $item ) {
 					$html .= $this->makeListItem( $key, $item );
 				}
-				
+
 				if ( $this->useUserMore() ) {
 					$html .= '<span class="more hovermenu">
 					<button id="headerButtonUser" class="header-button color1" tabIndex="-1">' . trim( wfMessage( 'moredotdotdot' )->escaped(), ' .' ) . '<img src="' . $this->get( 'blankimg' ) . '" /></button>
@@ -1163,7 +1253,7 @@ $html .= '<div id="skiplinks">
 		} else {
 						$html .= '<div id="user_masthead_scorecard" class="dark_text_1">' . htmlspecialchars( $editcount ) . '</div>';
 		}
-					$html .= '</h2>
+						$html .= '</h2>
 				</div>
 				<ul id="user_masthead_tabs" class="nav_links">';
 
@@ -1306,6 +1396,7 @@ $html .= '<div id="skiplinks">
 		$html = $indent;
 		$html .= Html::openElement( 'ul', $attrs );
 		$html .= "\n";
+
 		foreach ( $links as $link ) {
 			if ( isset( $link['links'] ) ) {
 				$link['class'] = trim( "{$link['class']} hovermenu" );
@@ -1348,7 +1439,7 @@ $html .= '<div id="skiplinks">
 	 */
 	protected function printFirstHeading() {
 		if ( !$this->data['skin']->isMastheadTitleVisible() ) {
-			return;
+			return '';
 		}
 		$html = '<h1 id="firstHeading" class="firstHeading" aria-level="1">' . $this->get( 'title' );
 		Hooks::run( 'MonacoPrintFirstHeading' );

@@ -353,7 +353,7 @@ class MonacoSidebar {
 	 * @param User $user
 	 * @return array|string
 	 */
-	private static function doGroupSidebar( User $user ) {
+	private function doGroupSidebar( User $user ) {
 		// Get group membership array.
 		$groups = $user->getEffectiveGroups();
 
@@ -524,6 +524,7 @@ class MonacoSidebar {
 
 				// convert line into small array
 				$node = $this->parseSidebarLine( $line );
+
 				$node = $this->addDepthParentToNode( $line, $node, $nodes, $index, $lastDepth );
 				$index = $this->addNodeToSidebar( $node, $nodes, $index, $lastDepth );
 			}

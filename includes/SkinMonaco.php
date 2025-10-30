@@ -41,7 +41,7 @@ class SkinMonaco extends SkinTemplate {
 	 * @return string[]
 	 */
 	public static function getSkinMonacoThemeList() {
-		return [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire", "sky", "slate", "smoke", "spring" ];
+		return [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire", "sky", "slate", "smoke", "spring", "wima" ];
 	}
 
 	/**
@@ -51,9 +51,6 @@ class SkinMonaco extends SkinTemplate {
 		return 'theme_monaco';
 	}
 
-	/**
-	 * @param OutputPage $out
-	 */
 	public function initPage( OutputPage $out ) {
 		parent::initPage( $out );
 
@@ -129,7 +126,7 @@ class SkinMonaco extends SkinTemplate {
 			return false;
 		}
 
-		return (bool)$this->getMastheadUser();
+		return is_bool( $this->getMastheadUser() ) ? false : true;
 	}
 
 	/**
@@ -140,7 +137,7 @@ class SkinMonaco extends SkinTemplate {
 
 		if ( !isset( $this->mMastheadUser ) ) {
 			$ns = $title->getNamespace();
-			if ( $ns == NS_USER || $ns == NS_USER_TALK ) {
+			if ( ( $ns == NS_USER ) || ( $ns == NS_USER_TALK ) ) {
 				$this->mMastheadUser = User::newFromName( strtok( $title->getText(), '/' ), false );
 				$this->mMastheadTitleVisible = false;
 			} else {
@@ -313,8 +310,8 @@ class SkinMonaco extends SkinTemplate {
 					$this->addExtraItemsToSidebarMenu( $node, $nodes );
 				}
 
-				$nodes[$i+1] = $node;
-				$nodes[ $node['parentIndex'] ]['children'][] = $i+1;
+				$nodes[$i + 1] = $node;
+				$nodes[$node['parentIndex']]['children'][] = $i + 1;
 				$lastDepth = $node['depth'];
 				$i++;
 			}
@@ -332,7 +329,7 @@ class SkinMonaco extends SkinTemplate {
 
 	/**
 	 * @param string $name
-	 * @param bool $asArray
+	 * @param bool $asArray|false
 	 * @return array|string|null
 	 */
 	public function getTransformedArticle( string $name, bool $asArray = false ) {
