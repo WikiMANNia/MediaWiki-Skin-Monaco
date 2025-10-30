@@ -6,23 +6,15 @@ use MediaWiki\Title\Title;
 use MediaWiki\Utils\UrlUtils;
 
 class MonacoSidebar {
-	/** @var array */
+
 	public array $biggestCategories;
-
-	/** @var string */
 	public string $editUrl = '';
-
-	/** @var HookContainer */
 	private HookContainer $hookContainer;
 
 	public function __construct( HookContainer $hookContainer ) {
 		$this->hookContainer = $hookContainer;
 	}
 
-	/**
-	 * @param Title $title
-	 * @param string $text
-	 */
 	public static function invalidateCache( Title $title, string $text ) {
 		$memc = ObjectCache::getLocalClusterInstance();
 		$memc->delete( $memc->makeKey( 'mMonacoSidebar', 'monacoSidebar' ) );
@@ -30,11 +22,8 @@ class MonacoSidebar {
 
 	/**
 	 * Parse one line from MediaWiki message to array with indexes 'text' and 'href'
-	 *
-	 * @param string $line
-	 * @return array
 	 */
-	public static function parseItem( string $line ) {
+	public static function parseItem( string $line ): array {
 		$href = $specialCanonicalName = false;
 
 		$line_temp = explode( '|', trim( $line, '* ' ), 3 );
@@ -103,11 +92,7 @@ class MonacoSidebar {
 		];
 	}
 
-	/**
-	 * @param string $messageKey
-	 * @return array|null
-	 */
-	public static function getMessageAsArray( string $messageKey ) {
+	public static function getMessageAsArray( string $messageKey ): ?array {
 		$message = trim( wfMessage( $messageKey )->inContentLanguage()->text() );
 
 		if ( !wfMessage( $messageKey )->inContentLanguage()->isBlank() ) {
@@ -121,10 +106,7 @@ class MonacoSidebar {
 		return null;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getCode() {
+	public function getCode(): string {
 		$memc = ObjectCache::getLocalClusterInstance();
 
 		$contLang = MediaWikiServices::getInstance()->getContentLanguage();
@@ -147,10 +129,7 @@ class MonacoSidebar {
 		return $menu;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getMenuLines() {
+	public function getMenuLines(): array {
 		if ( empty( $lines ) ) {
 			$lines = self::getMessageAsArray( 'Monaco-sidebar' );
 		}
@@ -158,12 +137,7 @@ class MonacoSidebar {
 		return $lines;
 	}
 
-	/**
-	 * @param array $nodes
-	 * @param array $children
-	 * @return string
-	 */
-	public function getSubMenu( array $nodes, array $children ) {
+	public function getSubMenu( array $nodes, array $children ): string {
 		$menu = '';
 
 		foreach ( $children as $key => $val ) {
@@ -192,12 +166,7 @@ class MonacoSidebar {
 		return $menu;
 	}
 
-	/**
-	 * @param array $lines
-	 * @param bool $userMenu
-	 * @return bool
-	 */
-	public function getMenu( array $lines, bool $userMenu = false ) {
+	public function getMenu( array $lines, bool $userMenu = false ): bool {
 		$nodes = $this->parseSidebar( $lines );
 
 		if ( count( $nodes ) > 0 ) {
@@ -289,11 +258,7 @@ class MonacoSidebar {
 		}
 	}
 
-	/**
-	 * @param array &$node
-	 * @return bool
-	 */
-	public function handleMagicWord( array &$node ) {
+	public function handleMagicWord( array &$node ): bool {
 		$original_lower = strtolower( $node['original'] );
 
 		if ( in_array( $original_lower, [ '#voted#', '#popular#', '#visited#', '#newlychanged#', '#topusers#' ] ) ) {
@@ -395,11 +360,8 @@ class MonacoSidebar {
 
 	/**
 	 * Parse Sidebar Lines
-	 *
-	 * @param array $lines
-	 * @return array
 	 */
-	public function parseSidebar( array $lines ) {
+	public function parseSidebar( array $lines ): array {
 		$context = RequestContext::getMain();
 
 		$nodes = [];
@@ -462,11 +424,8 @@ class MonacoSidebar {
 
 	/**
 	 * Parse Line of Sidebar
-	 *
-	 * @param string $line
-	 * @return array
 	 */
-	public function parseSidebarLine( string $line ) {
+	public function parseSidebarLine( string $line ): array {
 		$lineTmp = explode( '|', trim( $line, '* ' ), 2 );
 		// for external links defined as [http://example.com] instead of just http://example.com
 		$lineTmp[0] = trim( $lineTmp[0], '[]' );
@@ -518,13 +477,8 @@ class MonacoSidebar {
 
 	/**
 	 * Process a list of elements and add them to the corrent position in the current menu
-	 *
-	 * @param array $lines
-	 * @param int &$lastDepth
-	 * @param array &$nodes
-	 * @param int &$index
 	 */
-	public function processSpecialSidebar( array $lines, int &$lastDepth, array &$nodes, int &$index ) {
+	public function processSpecialSidebar( array $lines, int &$lastDepth, array &$nodes, int &$index ): void {
 		if ( is_array( $lines ) && count( $lines ) > 0 ) {
 			foreach ( $lines as $line ) {
 				if ( trim( $line ) === '' ) {
@@ -534,6 +488,7 @@ class MonacoSidebar {
 
 				// convert line into small array
 				$node = $this->parseSidebarLine( $line );
+
 				$node = $this->addDepthParentToNode( $line, $node, $nodes, $index, $lastDepth );
 				$index = $this->addNodeToSidebar( $node, $nodes, $index, $lastDepth );
 			}
@@ -543,15 +498,8 @@ class MonacoSidebar {
 	/**
 	 * Calculate and add the depth of the current node.
 	 * Set the array index of the parent node to the current node
-	 *
-	 * @param string $line
-	 * @param array $node
-	 * @param array &$nodes
-	 * @param int &$index
-	 * @param int &$lastDepth
-	 * @return array
 	 */
-	public function addDepthParentToNode( string $line, array $node, array &$nodes, int &$index, int &$lastDepth ) {
+	public function addDepthParentToNode( string $line, array $node, array &$nodes, int &$index, int &$lastDepth ): array {
 		// calculate the depth of this node in the menu
 		$node['depth'] = strrpos( $line, '*' ) + 1;
 
@@ -578,14 +526,8 @@ class MonacoSidebar {
 
 	/**
 	 * Add Node as newest Item of the Menu
-	 *
-	 * @param array $node
-	 * @param array &$nodes
-	 * @param int $index
-	 * @param int &$lastDepth
-	 * @return int
 	 */
-	public function addNodeToSidebar( array $node, array &$nodes, int $index, int &$lastDepth ) {
+	public function addNodeToSidebar( array $node, array &$nodes, int $index, int &$lastDepth ): int {
 		$nodes[$index + 1] = $node;
 		$nodes[ $node['parentIndex'] ]['children'][] = $index + 1;
 		$lastDepth = $node['depth'];
@@ -594,11 +536,7 @@ class MonacoSidebar {
 		return $index;
 	}
 
-	/**
-	 * @param int $index
-	 * @return string|null
-	 */
-	public function getBiggestCategory( int $index ) {
+	public function getBiggestCategory( int $index ): ?string {
 		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'monaco' );
 
 		$memc = ObjectCache::getLocalClusterInstance();

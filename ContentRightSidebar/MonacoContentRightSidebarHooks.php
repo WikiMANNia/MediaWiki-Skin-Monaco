@@ -21,7 +21,7 @@ class MonacoContentRightSidebarHooks implements
 	 * @param OutputPage $out
 	 * @param Skin $skin
 	 */
-	public function onBeforePageDisplay( $out, $skin ) {
+	public function onBeforePageDisplay( $out, $skin ): void {
 		if ( $skin->getSkinName() === 'monaco' ) {
 			$out->addModules( [ 'ext.MonacoContentRightSidebar' ] );
 		}
@@ -115,22 +115,26 @@ class MonacoContentRightSidebarHooks implements
 			if ( $startTitle !== false ) {
 				$endTitle = strpos( $content, RIGHT_SIDEBAR_TITLE_END_TOKEN, $startTitle );
 				if ( $endTitle !== false ) {
-					$title = urldecode( substr(
-						$content,
-						$startTitle + strlen( RIGHT_SIDEBAR_TITLE_START_TOKEN ),
-						$endTitle - $startTitle - strlen( RIGHT_SIDEBAR_TITLE_START_TOKEN )
-					) );
+					$title = urldecode(
+						substr(
+							$content,
+							$startTitle + strlen( RIGHT_SIDEBAR_TITLE_START_TOKEN ),
+							$endTitle - $startTitle - strlen( RIGHT_SIDEBAR_TITLE_START_TOKEN )
+						)
+					);
 				}
 			}
 			$startClass = strpos( $content, RIGHT_SIDEBAR_CLASS_START_TOKEN );
 			if ( $startClass !== false ) {
 				$endClass = strpos( $content, RIGHT_SIDEBAR_CLASS_END_TOKEN, $startClass );
 				if ( $endClass !== false ) {
-					$class = urldecode( substr(
-						$content,
-						$startClass + strlen( RIGHT_SIDEBAR_CLASS_START_TOKEN ),
-						$endClass - $startClass - strlen( RIGHT_SIDEBAR_CLASS_START_TOKEN )
-					) );
+					$class = urldecode(
+						substr(
+							$content,
+							$startClass + strlen( RIGHT_SIDEBAR_CLASS_START_TOKEN ),
+							$endClass - $startClass - strlen( RIGHT_SIDEBAR_CLASS_START_TOKEN )
+						)
+					);
 				}
 			}
 
@@ -150,14 +154,14 @@ class MonacoContentRightSidebarHooks implements
 		return $boxes;
 	}
 
-	 /**
-	  * MonacoRightSidebar custom hook handler. This is invoked by the Monaco skin
-	  * to add the right sidebar. If this hook is not invoked, then right sidebar
-	  * content renders as a right-floating box inside the article.
-	  *
-	  * @param Skin $skin
-	  * @return string
-	  */
+	/**
+	 * MonacoRightSidebar custom hook handler. This is invoked by the Monaco skin
+	 * to add the right sidebar. If this hook is not invoked, then right sidebar
+	 * content renders as a right-floating box inside the article.
+	 *
+	 * @param Skin $skin
+	 * @return string
+	 */
 	public static function onMonacoRightSidebar( $skin ) {
 		$boxes = self::extractRightSidebarBoxes( $skin->data['bodytext'] );
 

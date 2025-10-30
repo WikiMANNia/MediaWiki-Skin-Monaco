@@ -31,13 +31,13 @@ class MonacoTemplate extends BaseTemplate {
 	 * the user header and need the more button to function.
 	 *
 	 * @author Daniel Friesen
-	 * @return bool
 	 */
 	private function useUserMore(): bool {
 
 		return $this->mConfig->get( 'MonacoUseMoreButton' );
 	}
 
+	/** @inheritDoc */
 	public function execute() {
 
 		$sitename = $this->mConfig->get( 'Sitename' );
@@ -243,9 +243,7 @@ class MonacoTemplate extends BaseTemplate {
 
 						$html .= Html::rawElement( 'li', null,
 							$feUserIcon . ' ' .
-							Html::rawElement(
-								'div',
-								null,
+							Html::rawElement( 'div', null,
 								wfMessage( 'monaco-footer-lastedit' )->rawParams(
 									$linkRenderer->makeLink(
 										$userPageTitle,
@@ -272,8 +270,7 @@ class MonacoTemplate extends BaseTemplate {
 
 					$html .= Html::rawElement( 'li', null,
 						$feCopyIcon . ' ' .
-						Html::rawElement(
-							'div',
+						Html::rawElement( 'div',
 							[ 'id' => 'copyright' ],
 							$this->get( 'copyright' )
 						)
@@ -306,7 +303,8 @@ class MonacoTemplate extends BaseTemplate {
 							'li',
 							[ 'id' => 'fe_history' ],
 							$feHistoryIcon . ' ' .
-							Html::rawElement( 'div', null, $feHistoryLink ) );
+							Html::rawElement( 'div', null, $feHistoryLink )
+						);
 					}
 
 					if ( !empty( $nav_urls['recentchangeslinked'] ) ) {
@@ -329,7 +327,8 @@ class MonacoTemplate extends BaseTemplate {
 							'li',
 							[ 'id' => 'fe_recent' ],
 							$feRecentIcon . ' ' .
-							Html::rawElement( 'div', null, $feRecentLink ) );
+							Html::rawElement( 'div', null, $feRecentLink )
+						);
 					}
 
 					$html .= "</ul>\n";
@@ -358,7 +357,8 @@ class MonacoTemplate extends BaseTemplate {
 							'li',
 							[ 'id' => 'fe_permalink' ],
 							$fePermaIcon . ' ' .
-							Html::rawElement( 'div', null, $fePermaLink ) );
+							Html::rawElement( 'div', null, $fePermaLink )
+						);
 					}
 
 					if ( !empty( $nav_urls['whatlinkshere'] ) ) {
@@ -406,7 +406,8 @@ class MonacoTemplate extends BaseTemplate {
 				$html .= '<ul class="actions clearfix" id="articleFooterActions2">';
 				$html .= Html::rawElement( 'li', [ 'id' => 'fe_randompage' ],
 					$feRandIcon . ' ' .
-					Html::rawElement( 'div', null, $feRandLink ) );
+					Html::rawElement( 'div', null, $feRandLink )
+				);
 
 				if ( !empty( $this->get( 'mobileview' ) ) ) {
 					$feMobileIcon = $this->blankimg( [
@@ -423,7 +424,8 @@ class MonacoTemplate extends BaseTemplate {
 						'li',
 						[ 'id' => 'fe_mobile' ],
 						$feMobileIcon . ' ' .
-						Html::rawElement( 'div', null, $this->get( 'mobileview' ) ) );
+						Html::rawElement( 'div', null, $this->get( 'mobileview' ) )
+					);
 				}
 
 				$html .= "</ul>\n";
@@ -459,10 +461,10 @@ class MonacoTemplate extends BaseTemplate {
 		$sitename = $this->mConfig->get( 'Sitename' );
 		$MonacoSearchDefaultFulltext = $this->mConfig->get( 'MonacoSearchDefaultFulltext' );
 		$msgSearchLabel = wfMessage( 'Tooltip-search' )->escaped();
+		$searchAction = SpecialPage::newSearchPage( $user )->getLocalURL();
 		$searchLabel = wfMessage( 'Tooltip-search' )->isDisabled()
 			? ( wfMessage( 'ilsubmit' )->escaped() . ' ' . $sitename . '...' )
 			: $msgSearchLabel;
-		$searchAction = SpecialPage::newSearchPage( $user )->getLocalURL();
 		$searchAction = htmlspecialchars( $searchAction, ENT_QUOTES );
 		$searchLabel = htmlspecialchars( $searchLabel );
 
@@ -559,7 +561,7 @@ class MonacoTemplate extends BaseTemplate {
 						$dynamicLinksUser[$line] = [
 							'url' => $url,
 							// @note Designers used messy css sprites so we can't really let this be customized easily
-							'icon' => 'edit',
+							'icon' => 'edit'
 						];
 					}
 				}
@@ -761,9 +763,9 @@ class MonacoTemplate extends BaseTemplate {
 			<!-- /SEARCH/NAVIGATION -->' .
 		$this->printExtraSidebar();
 		$hookContainer->run( 'MonacoSidebarEnd', [ $this, &$html ] );
-		$html .= '</div>
-		<!-- /WIDGETS -->
-	<!--/div-->';
+		$html .= "</div>\n
+		<!-- /WIDGETS -->\n
+	<!--/div-->\n";
 
 // curse like cobranding
 		$html .= $this->printCustomFooter();
@@ -1099,6 +1101,7 @@ class MonacoTemplate extends BaseTemplate {
 		}
 		$box .= $boxContent;
 		$box .= Xml::closeElement( 'div ' );
+
 		return $box;
 	}
 
@@ -1152,7 +1155,7 @@ class MonacoTemplate extends BaseTemplate {
 		$skin = $this->data['skin'];
 		$user = $skin->getUser();
 		$html = '<div id="userData">';
-		
+
 		$custom_user_data = "";
 
 		if ( $custom_user_data ) {
@@ -1176,7 +1179,7 @@ class MonacoTemplate extends BaseTemplate {
 				foreach ( $toolbar as $key => $item ) {
 					$html .= $this->makeListItem( $key, $item );
 				}
-				
+
 				if ( $this->useUserMore() ) {
 					$html .= '<span class="more hovermenu">
 					<button id="headerButtonUser" class="header-button color1" tabIndex="-1">' . trim( wfMessage( 'moredotdotdot' )->escaped(), ' .' ) . '<img src="' . $this->get( 'blankimg' ) . '" /></button>
@@ -1257,7 +1260,7 @@ class MonacoTemplate extends BaseTemplate {
 		} else {
 						$html .= '<div id="user_masthead_scorecard" class="dark_text_1">' . htmlspecialchars( $editcount ) . '</div>';
 		}
-					$html .= '</h2>
+						$html .= '</h2>
 				</div>
 				<ul id="user_masthead_tabs" class="nav_links">';
 
@@ -1400,6 +1403,7 @@ class MonacoTemplate extends BaseTemplate {
 		$html = $indent;
 		$html .= Html::openElement( 'ul', $attrs );
 		$html .= "\n";
+
 		foreach ( $links as $link ) {
 			if ( isset( $link['links'] ) ) {
 				$link['class'] = trim( "{$link['class']} hovermenu" );
@@ -1439,12 +1443,11 @@ class MonacoTemplate extends BaseTemplate {
 
 	/**
 	 * Made a separate method so recipes, answers, etc can override. Notably, answers turns it off.
-	 * @return string
 	 */
-	protected function printFirstHeading() {
+	protected function printFirstHeading(): string {
 		$hookContainer = $this->getHookContainer();
 		if ( !$this->data['skin']->isMastheadTitleVisible() ) {
-			return;
+			return '';
 		}
 		$html = '<h1 id="firstHeading" class="firstHeading" aria-level="1">' . $this->get( 'title' );
 		$hookContainer->run( 'MonacoPrintFirstHeading' );
@@ -1455,17 +1458,15 @@ class MonacoTemplate extends BaseTemplate {
 
 	/**
 	 * Made a separate method so recipes, answers, etc can override.
-	 * @return string
 	 */
-	protected function printContent() {
+	protected function printContent(): string {
 		return $this->get( 'bodytext' );
 	}
 
 	/**
 	 * Made a separate method so recipes, answers, etc can override.
-	 * @return string
 	 */
-	protected function printCategories() {
+	protected function printCategories(): string {
 		// Display categories
 		if ( $this->data['catlinks'] ) {
 			return $this->get( 'catlinks' );

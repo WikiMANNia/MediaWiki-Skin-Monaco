@@ -2,6 +2,7 @@
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Title\Title;
+use MediaWiki\User\User;
 use MediaWiki\User\UserOptionsLookup;
 
 class SkinMonaco extends SkinTemplate {
@@ -30,30 +31,18 @@ class SkinMonaco extends SkinTemplate {
 		parent::__construct( $options );
 	}
 
-	/**
-	 * @return string
-	 */
-	private static function getSkinMonacoFallbackTheme() {
+	private static function getSkinMonacoFallbackTheme(): string {
 		return "sapphire";
 	}
 
-	/**
-	 * @return string[]
-	 */
-	public static function getSkinMonacoThemeList() {
-		return [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire", "sky", "slate", "smoke", "spring" ];
+	public static function getSkinMonacoThemeList(): array {
+		return [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire", "sky", "slate", "smoke", "spring", "wima" ];
 	}
 
-	/**
-	 * @return string
-	 */
-	public static function getThemeKey() {
+	public static function getThemeKey(): string {
 		return 'theme_monaco';
 	}
 
-	/**
-	 * @param OutputPage $out
-	 */
 	public function initPage( OutputPage $out ) {
 		parent::initPage( $out );
 
@@ -112,24 +101,18 @@ class SkinMonaco extends SkinTemplate {
 		);
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getDefaultModules() {
+	public function getDefaultModules(): array {
 		$modules = parent::getDefaultModules();
 
 		return $modules;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function showMasthead() {
+	public function showMasthead(): bool {
 		if ( !$this->config->get( 'MonacoUseMasthead' ) ) {
 			return false;
 		}
 
-		return (bool)$this->getMastheadUser();
+		return is_bool( $this->getMastheadUser() ) ? false : true;
 	}
 
 	/**
@@ -140,7 +123,7 @@ class SkinMonaco extends SkinTemplate {
 
 		if ( !isset( $this->mMastheadUser ) ) {
 			$ns = $title->getNamespace();
-			if ( $ns == NS_USER || $ns == NS_USER_TALK ) {
+			if ( ( $ns == NS_USER ) || ( $ns == NS_USER_TALK ) ) {
 				$this->mMastheadUser = User::newFromName( strtok( $title->getText(), '/' ), false );
 				$this->mMastheadTitleVisible = false;
 			} else {
@@ -153,10 +136,7 @@ class SkinMonaco extends SkinTemplate {
 		return $this->mMastheadUser;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isMastheadTitleVisible() {
+	public function isMastheadTitleVisible(): bool {
 		if ( !$this->showMasthead() ) {
 			return true;
 		}
@@ -166,11 +146,7 @@ class SkinMonaco extends SkinTemplate {
 		return $this->mMastheadTitleVisible;
 	}
 
-	/**
-	 * @param array $lines
-	 * @return array
-	 */
-	public function parseToolboxLinks( array $lines ) {
+	public function parseToolboxLinks( array $lines ): array {
 		$nodes = [];
 		if ( is_array( $lines ) ) {
 			foreach ( $lines as $line ) {
@@ -188,11 +164,7 @@ class SkinMonaco extends SkinTemplate {
 		return $nodes;
 	}
 
-	/**
-	 * @param string $message_key
-	 * @return array
-	 */
-	public function getLines( string $message_key ) {
+	public function getLines( string $message_key ): array {
 		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $message_key, NS_MEDIAWIKI ) );
 
@@ -215,18 +187,11 @@ class SkinMonaco extends SkinTemplate {
 		return $lines;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getToolboxLinks() {
+	public function getToolboxLinks(): array {
 		return $this->parseToolboxLinks( $this->getLines( 'Monaco-toolbox' ) );
 	}
 
-	/**
-	 * @param array &$node
-	 * @param array &$nodes
-	 */
-	public function addExtraItemsToSidebarMenu( array &$node, array &$nodes ) {
+	public function addExtraItemsToSidebarMenu( array &$node, array &$nodes ): void {
 		$extraWords = [
 			'#voted#' => [ 'highest_ratings', 'GetTopVotedArticles' ],
 			'#popular#' => [ 'most_popular', 'GetMostPopularArticles' ],
@@ -272,11 +237,7 @@ class SkinMonaco extends SkinTemplate {
 		}
 	}
 
-	/**
-	 * @param array $lines
-	 * @return array
-	 */
-	public function parseSidebarMenu( array $lines ) {
+	public function parseSidebarMenu( array $lines ): array {
 		$nodes = [];
 		$nodes[] = [];
 		$lastDepth = 0;
@@ -313,8 +274,8 @@ class SkinMonaco extends SkinTemplate {
 					$this->addExtraItemsToSidebarMenu( $node, $nodes );
 				}
 
-				$nodes[$i+1] = $node;
-				$nodes[ $node['parentIndex'] ]['children'][] = $i+1;
+				$nodes[$i + 1] = $node;
+				$nodes[$node['parentIndex']]['children'][] = $i + 1;
 				$lastDepth = $node['depth'];
 				$i++;
 			}
@@ -323,19 +284,11 @@ class SkinMonaco extends SkinTemplate {
 		return $nodes;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getSidebarLinks() {
+	public function getSidebarLinks(): array {
 		return $this->parseSidebarMenu( $this->getLines( 'Monaco-sidebar' ) );
 	}
 
-	/**
-	 * @param string $name
-	 * @param bool $asArray
-	 * @return array|string|null
-	 */
-	public function getTransformedArticle( string $name, bool $asArray = false ) {
+	public function getTransformedArticle( string $name, bool $asArray = false ): ?string {
 		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $name ) );
 		$parser = MediaWikiServices::getInstance()->getParser();
