@@ -404,7 +404,8 @@ class MonacoTemplate extends BaseTemplate {
 				);
 
 				$html .= '<ul class="actions clearfix" id="articleFooterActions2">';
-				$html .= Html::rawElement( 'li', [ 'id' => 'fe_randompage' ],
+				$html .= Html::rawElement( 'li',
+					[ 'id' => 'fe_randompage' ],
 					$feRandIcon . ' ' .
 					Html::rawElement( 'div', null, $feRandLink )
 				);
@@ -463,7 +464,7 @@ class MonacoTemplate extends BaseTemplate {
 		$msgSearchLabel = wfMessage( 'Tooltip-search' )->escaped();
 		$searchAction = SpecialPage::newSearchPage( $user )->getLocalURL();
 		$searchLabel = wfMessage( 'Tooltip-search' )->isDisabled()
-			? ( wfMessage( 'ilsubmit' )->escaped() . ' ' . $sitename . '...' )
+			? wfMessage( 'ilsubmit' )->escaped() . ' ' . $sitename . '...'
 			: $msgSearchLabel;
 		$searchAction = htmlspecialchars( $searchAction, ENT_QUOTES );
 		$searchLabel = htmlspecialchars( $searchLabel );
@@ -1245,7 +1246,7 @@ class MonacoTemplate extends BaseTemplate {
 	function printMasthead() {
 		$skin = $this->data['skin'];
 		if ( !$skin->showMasthead() ) {
-			return;
+			return '';
 		}
 		$lang = $this->getSkin()->getLanguage();
 		$user = $skin->getMastheadUser();
@@ -1274,7 +1275,8 @@ class MonacoTemplate extends BaseTemplate {
 		}
 				$html .= '</ul>
 			</div>';
-		unset( $this->data['articlelinks']['right'] ); // hide the right articlelinks since we've already displayed them
+		// hide the right articlelinks since we've already displayed them
+		unset( $this->data['articlelinks']['right'] );
 
 		return $html;
 	}

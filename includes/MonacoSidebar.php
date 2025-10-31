@@ -368,9 +368,9 @@ class MonacoSidebar {
 		$lastDepth = 0;
 		$i = 0;
 
-		if ( is_array( $lines ) && count( $lines ) > 0 ) {
+		if ( is_array( $lines ) && ( count( $lines ) > 0 ) ) {
 			foreach ( $lines as $line ) {
-				if ( trim( $line ) === '' ) {
+				if ( empty( trim( $line ) ) ) { {
 					// ignore empty lines
 					continue;
 				}
@@ -479,9 +479,9 @@ class MonacoSidebar {
 	 * Process a list of elements and add them to the corrent position in the current menu
 	 */
 	public function processSpecialSidebar( array $lines, int &$lastDepth, array &$nodes, int &$index ): void {
-		if ( is_array( $lines ) && count( $lines ) > 0 ) {
+		if ( is_array( $lines ) && ( count( $lines ) > 0 ) ) {
 			foreach ( $lines as $line ) {
-				if ( trim( $line ) === '' ) {
+				if ( empty( trim( $line ) ) ) {
 					// skip empty lines, goto next line
 					continue;
 				}
