@@ -396,9 +396,9 @@ class MonacoSidebar {
 		$lastDepth = 0;
 		$i = 0;
 
-		if ( is_array( $lines ) && count( $lines ) > 0 ) {
+		if ( is_array( $lines ) && ( count( $lines ) > 0 ) ) {
 			foreach ( $lines as $line ) {
-				if ( trim( $line ) === '' ) {
+				if ( empty( trim( $line ) ) ) { {
 					// ignore empty lines
 					continue;
 				}
@@ -515,9 +515,9 @@ class MonacoSidebar {
 	 * @param int &$index
 	 */
 	public function processSpecialSidebar( $lines, &$lastDepth, &$nodes, &$index ) {
-		if ( is_array( $lines ) && count( $lines ) > 0 ) {
+		if ( is_array( $lines ) && ( count( $lines ) > 0 ) ) {
 			foreach ( $lines as $line ) {
-				if ( trim( $line ) === '' ) {
+				if ( empty( trim( $line ) ) ) {
 					// skip empty lines, goto next line
 					continue;
 				}
