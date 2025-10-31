@@ -285,7 +285,8 @@ class MonacoTemplate extends BaseTemplate {
 						$feHistoryIcon = Html::rawElement( 'a', [ 'id' => 'fe_history_icon', 'href' => $this->data['content_actions']['history']['href'] ], $feHistoryIcon );
 						$feHistoryLink = Html::rawElement( 'a', [ 'id' => 'fe_history_link', 'href' => $this->data['content_actions']['history']['href'] ], $this->data['content_actions']['history']['text'] );
 
-						$html .= Html::rawElement( 'li', [ 'id' => 'fe_history' ],
+						$html .= Html::rawElement( 'li',
+							[ 'id' => 'fe_history' ],
 							$feHistoryIcon . ' ' .
 							Html::rawElement( 'div', null, $feHistoryLink )
 						);
@@ -296,7 +297,8 @@ class MonacoTemplate extends BaseTemplate {
 						$feRecentIcon = Html::rawElement( 'a', [ 'id' => 'fe_recent_icon', 'href' => $nav_urls['recentchangeslinked']['href'] ], $feRecentIcon);
 						$feRecentLink = Html::rawElement( 'a', [ 'id' => 'fe_recent_link', 'href' => $nav_urls['recentchangeslinked']['href'] ], wfMessage('recentchangeslinked')->escaped());
 
-						$html .= Html::rawElement( 'li', [ 'id' => 'fe_recent' ],
+						$html .= Html::rawElement( 'li',
+							[ 'id' => 'fe_recent' ],
 							$feRecentIcon . ' ' .
 							Html::rawElement( 'div', null, $feRecentLink )
 						);
@@ -337,7 +339,8 @@ class MonacoTemplate extends BaseTemplate {
 				$feRandLink = Html::rawElement( 'a', [ 'id' => 'fe_random_link', 'href' => Skin::makeSpecialUrl( 'Randompage' ) ], wfMessage( 'viewrandompage' )->escaped() );
 
 				$html .= '<ul class="actions clearfix" id="articleFooterActions2">';
-				$html .= Html::rawElement( 'li', [ 'id' => 'fe_randompage' ],
+				$html .= Html::rawElement( 'li',
+					[ 'id' => 'fe_randompage' ],
 					$feRandIcon . ' ' .
 					Html::rawElement( 'div', null, $feRandLink )
 				);
@@ -386,7 +389,7 @@ class MonacoTemplate extends BaseTemplate {
 		$msgSearchLabel = wfMessage( 'Tooltip-search' )->escaped();
 		$searchAction = $this->get( 'searchaction' );
 		$searchLabel = wfMessage( 'Tooltip-search' )->isDisabled()
-			? ( wfMessage( 'ilsubmit' )->escaped() . ' ' . $wgSitename . '...' )
+			? wfMessage( 'ilsubmit' )->escaped() . ' ' . $wgSitename . '...'
 			: $msgSearchLabel;
 		$searchLabel = htmlspecialchars( $searchLabel );
 
@@ -1142,7 +1145,7 @@ class MonacoTemplate extends BaseTemplate {
 	function printMasthead() {
 		$skin = $this->data['skin'];
 		if ( !$skin->showMasthead() ) {
-			return;
+			return '';
 		}
 		$lang = $this->getSkin()->getLanguage();
 		$user = $skin->getMastheadUser();
@@ -1171,7 +1174,8 @@ class MonacoTemplate extends BaseTemplate {
 		}
 				$html .= '</ul>
 			</div>';
-		unset( $this->data['articlelinks']['right'] ); // hide the right articlelinks since we've already displayed them
+		// hide the right articlelinks since we've already displayed them
+		unset( $this->data['articlelinks']['right'] );
 
 		return $html;
 	}

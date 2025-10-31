@@ -395,7 +395,7 @@ class MonacoSidebar {
 		$lastDepth = 0;
 		$i = 0;
 
-		if ( is_array( $lines ) && count( $lines ) > 0 ) {
+		if ( is_array( $lines ) && ( count( $lines ) > 0 ) ) {
 			foreach ( $lines as $line ) {
 				if ( trim( $line ) === '' ) {
 					// ignore empty lines
@@ -513,9 +513,9 @@ class MonacoSidebar {
 	 * @param int &$index
 	 */
 	public function processSpecialSidebar( $lines, &$lastDepth, &$nodes, &$index ) {
-		if ( is_array( $lines ) && count( $lines ) > 0 ) {
+		if ( is_array( $lines ) && ( count( $lines ) > 0 ) ) {
 			foreach ( $lines as $line ) {
-				if ( trim( $line ) === '' ) {
+				if ( empty( trim( $line ) ) ) {
 					// skip empty lines, goto next line
 					continue;
 				}
@@ -604,7 +604,7 @@ class MonacoSidebar {
 					$filterWordsA[] = '(cl_to not like "%' . $word . '%")';
 				}
 
-				$dbr = wfGetDB( DB_REPLICA );
+				$dbr = self::getReadingConnect();
 				$tables = [ 'categorylinks' ];
 				$fields = [ 'cl_to, COUNT(*) AS cnt' ];
 				$where = count( $filterWordsA ) > 0 ? [ implode( ' AND ', $filterWordsA ) ] : [];
@@ -624,5 +624,10 @@ class MonacoSidebar {
 		}
 
 		return isset( $this->biggestCategories[$index - 1] ) ? $this->biggestCategories[$index - 1] : null;
+	}
+
+	private static function getReadingConnect() {
+		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+		return $lb->getMaintenanceConnectionRef( DB_REPLICA );
 	}
 }
