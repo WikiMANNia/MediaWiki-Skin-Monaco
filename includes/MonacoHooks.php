@@ -1,4 +1,6 @@
 <?php
+
+use MediaWiki\Config\Config;
 use MediaWiki\Hook\OutputPageBodyAttributesHook;
 use MediaWiki\Preferences\Hook\GetPreferencesHook;
 use MediaWiki\User\UserOptionsLookup;
@@ -12,11 +14,11 @@ class MonacoHooks implements
 	private string $defaultTheme;
 
 	/**
-	 * @param GlobalVarConfig $config
+	 * @param Config $config
 	 * @param UserOptionsLookup $userOptionsLookup
 	 */
 	public function __construct(
-		GlobalVarConfig $config,
+		Config $config,
 		UserOptionsLookup $userOptionsLookup
 	) {
 		$this->userOptionsLookup = $userOptionsLookup;
@@ -131,6 +133,7 @@ class MonacoHooks implements
 		if ( !$skin->getUser()->isRegistered() ) {
 			$bodyAttrs['class'] .= ' loggedout';
 		}
+
 		if ( $out->getTitle()->isMainPage() ) {
 			$bodyAttrs['class'] .= ' mainpage';
 		}
