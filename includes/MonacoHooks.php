@@ -1,4 +1,5 @@
 <?php
+
 use MediaWiki\Hook\OutputPageBodyAttributesHook;
 use MediaWiki\Preferences\Hook\GetPreferencesHook;
 use MediaWiki\User\UserOptionsLookup;
@@ -131,6 +132,7 @@ class MonacoHooks implements
 		if ( !$skin->getUser()->isRegistered() ) {
 			$bodyAttrs['class'] .= ' loggedout';
 		}
+
 		if ( $out->getTitle()->isMainPage() ) {
 			$bodyAttrs['class'] .= ' mainpage';
 		}

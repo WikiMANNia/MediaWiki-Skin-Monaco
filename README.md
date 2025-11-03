@@ -54,7 +54,7 @@ A fork [maintained by haleyjd](https://github.com/haleyjd/monaco-port) supports 
 This is an unbranded fork of the Monaco skin originally developed by Wikia (now [Fandom](https://en.wikipedia.org/wiki/Fandom_(website))) which is being maintained for use at [DoomWiki.org](http://doomwiki.org/). It was also previously deployed at the Orain non-profit wiki farm before it went offline.
 
 Version history
-------
+---------------
 
 2.8.0 - May 11, 2024
 

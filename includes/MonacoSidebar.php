@@ -4,7 +4,7 @@ use MediaWiki\MediaWikiServices;
 
 class MonacoSidebar {
 	/** @var array */
-	public $biggestCategories;
+	public $biggestCategories = [];
 
 	/** @var string */
 	public $editUrl = '';
@@ -30,7 +30,7 @@ class MonacoSidebar {
 		$line_temp = explode( '|', trim( $line, '* ' ), 3 );
 		$line_temp[0] = trim( $line_temp[0], '[]' );
 
-		if ( count( $line_temp ) >= 2 && $line_temp[1] != '' ) {
+		if ( ( count( $line_temp ) >= 2 ) && ( $line_temp[1] != '' ) ) {
 			$line = trim( $line_temp[1] );
 			$link = trim( wfMessage( $line_temp[0] )->inContentLanguage()->text() );
 		} else {
@@ -66,7 +66,7 @@ class MonacoSidebar {
 			} else {
 				$title = Title::newFromText( $link );
 				if ( $title ) {
-					if ( $title->getNamespace() == NS_SPECIAL ) {
+					if ( $title->inNamespace( NS_SPECIAL ) ) {
 						$specialPageFactory = MediaWikiServices::getInstance()->getSpecialPageFactory();
 						$dbkey = $title->getDBkey();
 
@@ -76,6 +76,7 @@ class MonacoSidebar {
 							$specialCanonicalName = $dbkey;
 						}
 					}
+
 					$title = $title->fixSpecialName();
 					$href = $title->getLocalURL();
 				} else {
@@ -199,10 +200,12 @@ class MonacoSidebar {
 				if ( isset( $nodes[$val]['children'] ) ) {
 					$mainMenu[$val] = $nodes[$val]['children'];
 				}
+
 				if ( isset( $nodes[$val]['magic'] ) ) {
 					$mainMenu[$val] = $nodes[$val]['magic'];
 				}
-				if ( isset( $nodes[$val]['href'] ) && ( $nodes[$val]['href'] == 'editthispage' ) ) {
+
+				if ( isset( $nodes[$val]['href'] ) && $nodes[$val]['href'] == 'editthispage' ) {
 					$menu .= '<!--b-->';
 				}
 
@@ -217,17 +220,19 @@ class MonacoSidebar {
 				if ( !isset( $nodes[$val]['internal'] ) || !$nodes[$val]['internal'] ) {
 					$menu .= ' rel="nofollow"';
 				}
+
 				$menu .= ' tabIndex=3>' . htmlspecialchars( $nodes[$val]['text'] );
 				if ( !empty( $nodes[$val]['children'] ) || !empty( $nodes[$val]['magic'] ) ) {
 					$menu .= '<em>&rsaquo;</em>';
 				}
+
 				$menu .= '</a>';
 				if ( !empty( $nodes[$val]['children'] ) || !empty( $nodes[$val]['magic'] ) ) {
 					$menu .= $this->getSubMenu( $nodes, $nodes[$val]['children'] );
 				}
 				$menu .= '</li>';
 
-				if ( isset( $nodes[$val]['href'] ) && $nodes[$val]['href'] == 'editthispage' ) {
+				if ( isset( $nodes[$val]['href'] ) && ( $nodes[$val]['href'] == 'editthispage' ) ) {
 					$menu .= '<!--e-->';
 				}
 			}
@@ -257,7 +262,7 @@ class MonacoSidebar {
 			$menuHash = hash( 'md5', serialize( $nodes ) );
 
 			foreach ( $nodes as $key => $val ) {
-				if ( !isset( $val['depth'] ) || $val['depth'] == 1 ) {
+				if ( !isset( $val['depth'] ) || ( $val['depth'] == 1 ) ) {
 					unset( $nodes[$key] );
 				}
 
@@ -272,6 +277,7 @@ class MonacoSidebar {
 			}
 
 			$memc = ObjectCache::getLocalClusterInstance();
+
 			// three days
 			$memc->set( $menuHash, $nodes, 60 * 60 * 24 * 3 );
 
@@ -398,7 +404,7 @@ class MonacoSidebar {
 
 		if ( is_array( $lines ) && ( count( $lines ) > 0 ) ) {
 			foreach ( $lines as $line ) {
-				if ( empty( trim( $line ) ) ) { {
+				if ( empty( trim( $line ) ) ) {
 					// ignore empty lines
 					continue;
 				}
@@ -430,7 +436,7 @@ class MonacoSidebar {
 						// we have to know later if there is editthispage special word used in first level
 						$nodes[0]['editthispage'] = true;
 					}
-				} elseif ( !empty( $node['original'] ) && $node['original'][0] == '#' ) {
+				} elseif ( !empty( $node['original'] ) && ( $node['original'][0] == '#' ) ) {
 					if ( $this->handleMagicWord( $node ) ) {
 						$nodes[0]['magicWords'][] = $node['magic'];
 
@@ -462,7 +468,7 @@ class MonacoSidebar {
 		$lineTmp[0] = trim( $lineTmp[0], '[]' );
 		$internal = false;
 
-		if ( count( $lineTmp ) == 2 && $lineTmp[1] != '' ) {
+		if ( ( count( $lineTmp ) == 2 ) && ( $lineTmp[1] != '' ) ) {
 			$link = trim( wfMessage( $lineTmp[0] )->inContentLanguage()->text() );
 			$line = trim( $lineTmp[1] );
 		} else {
@@ -612,7 +618,6 @@ class MonacoSidebar {
 				$where = count( $filterWordsA ) > 0 ? [ implode( ' AND ', $filterWordsA ) ] : [];
 				$options = [ 'ORDER BY' => 'cnt DESC', 'GROUP BY' => 'cl_to', 'LIMIT' => $limit ];
 				$res = $dbr->select( $tables, $fields, $where, __METHOD__, $options );
-				$categories = [];
 
 				// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 				while ( $row = $dbr->fetchObject( $res ) ) {

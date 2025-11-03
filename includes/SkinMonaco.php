@@ -1,4 +1,5 @@
 <?php
+
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Title\Title;
@@ -9,7 +10,7 @@ class SkinMonaco extends SkinTemplate {
 	/**
 	 * Overwrite few SkinTemplate methods which we don't need in Monaco
 	 */
-	public function buildSidebar() {
+	public function buildSidebar(): array {
 		return [];
 	}
 
@@ -30,24 +31,15 @@ class SkinMonaco extends SkinTemplate {
 		parent::__construct( $options );
 	}
 
-	/**
-	 * @return string
-	 */
-	private static function getSkinMonacoFallbackTheme() {
+	private static function getSkinMonacoFallbackTheme(): string {
 		return "sapphire";
 	}
 
-	/**
-	 * @return string[]
-	 */
-	public static function getSkinMonacoThemeList() {
+	public static function getSkinMonacoThemeList(): array {
 		return [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire", "sky", "slate", "smoke", "spring", "wima" ];
 	}
 
-	/**
-	 * @return string
-	 */
-	public static function getThemeKey() {
+	public static function getThemeKey(): string {
 		return 'theme_monaco';
 	}
 
@@ -57,14 +49,14 @@ class SkinMonaco extends SkinTemplate {
 		// ResourceLoader doesn't do ie specific styles that well iirc, so we have
 		// to do those manually.
 		$out->addStyle( 'Monaco/style/css/monaco_ie8.css', 'screen', 'IE 8' );
-		$out->addStyle( 'Monaco/style/css/monaco_gteie8.css', 'screen', 'gte IE 8');
+		$out->addStyle( 'Monaco/style/css/monaco_gteie8.css', 'screen', 'gte IE 8' );
 
 		// Likewise the masthead is a conditional feature so it's hard to include
 		// inside of the ResourceLoader.
 		if ( $this->showMasthead() ) {
 			$out->addStyle( 'Monaco/style/css/masthead.css', 'screen' );
 		}
-		
+
 		$request = $this->getRequest();
 		$theme_key = self::getThemeKey();
 		$themes = self::getSkinMonacoThemeList();
@@ -90,16 +82,15 @@ class SkinMonaco extends SkinTemplate {
 				$theme = $theme_user;
 			}
 		}
-		
+
 		// Theme is another conditional feature, we can't really resource load this
 		$out->addStyle( "Monaco/style/{$theme}/css/main.css", 'screen' );
-		
+
 		// TODO: explicit RTL style sheets are supposed to be obsolete w/ResourceLoader
 		// I have no way to test this currently, however. -haleyjd
 		// rtl... hmm, how do we resource load this?
 		$out->addStyle( 'Monaco/style/rtl.css', 'screen', '', 'rtl' );
 
-		
 		$out->addScript(
 			'<!--[if IE]><script type="text/javascript' .
 				'">\'abbr article aside audio canvas details figcaption figure ' .
@@ -109,19 +100,13 @@ class SkinMonaco extends SkinTemplate {
 		);
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getDefaultModules() {
+	public function getDefaultModules(): array {
 		$modules = parent::getDefaultModules();
 
 		return $modules;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function showMasthead() {
+	public function showMasthead(): bool {
 		if ( !$this->config->get( 'MonacoUseMasthead' ) ) {
 			return false;
 		}
@@ -136,8 +121,7 @@ class SkinMonaco extends SkinTemplate {
 		$title = $this->getTitle();
 
 		if ( !isset( $this->mMastheadUser ) ) {
-			$ns = $title->getNamespace();
-			if ( ( $ns == NS_USER ) || ( $ns == NS_USER_TALK ) ) {
+			if ( $title->inNamespace( NS_USER ) || $title->inNamespace( NS_USER_TALK ) ) {
 				$this->mMastheadUser = User::newFromName( strtok( $title->getText(), '/' ), false );
 				$this->mMastheadTitleVisible = false;
 			} else {
@@ -150,10 +134,7 @@ class SkinMonaco extends SkinTemplate {
 		return $this->mMastheadUser;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isMastheadTitleVisible() {
+	public function isMastheadTitleVisible(): bool {
 		if ( !$this->showMasthead() ) {
 			return true;
 		}
@@ -163,11 +144,7 @@ class SkinMonaco extends SkinTemplate {
 		return $this->mMastheadTitleVisible;
 	}
 
-	/**
-	 * @param array $lines
-	 * @return array
-	 */
-	public function parseToolboxLinks( array $lines ) {
+	public function parseToolboxLinks( array $lines ): array {
 		$nodes = [];
 		if ( is_array( $lines ) ) {
 			foreach ( $lines as $line ) {
@@ -178,6 +155,7 @@ class SkinMonaco extends SkinTemplate {
 				}
 
 				$item = MonacoSidebar::parseItem( $trimmed );
+
 				$nodes[] = $item;
 			}
 		}
@@ -185,11 +163,7 @@ class SkinMonaco extends SkinTemplate {
 		return $nodes;
 	}
 
-	/**
-	 * @param string $message_key
-	 * @return array
-	 */
-	public function getLines( string $message_key ) {
+	public function getLines( string $message_key ): array {
 		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $message_key, NS_MEDIAWIKI ) );
 
@@ -212,18 +186,11 @@ class SkinMonaco extends SkinTemplate {
 		return $lines;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getToolboxLinks() {
+	public function getToolboxLinks(): array {
 		return $this->parseToolboxLinks( $this->getLines( 'Monaco-toolbox' ) );
 	}
 
-	/**
-	 * @param array &$node
-	 * @param array &$nodes
-	 */
-	public function addExtraItemsToSidebarMenu( array &$node, array &$nodes ) {
+	public function addExtraItemsToSidebarMenu( array &$node, array &$nodes ): void {
 		$extraWords = [
 			'#voted#' => [ 'highest_ratings', 'GetTopVotedArticles' ],
 			'#popular#' => [ 'most_popular', 'GetMostPopularArticles' ],
@@ -269,11 +236,7 @@ class SkinMonaco extends SkinTemplate {
 		}
 	}
 
-	/**
-	 * @param array $lines
-	 * @return array
-	 */
-	public function parseSidebarMenu( array $lines ) {
+	public function parseSidebarMenu( array $lines ): array {
 		$nodes = [];
 		$nodes[] = [];
 		$lastDepth = 0;
@@ -299,6 +262,7 @@ class SkinMonaco extends SkinTemplate {
 							$node['parentIndex'] = 0;
 							break;
 						}
+
 						if ( $nodes[$x]['depth'] == $node['depth'] - 1 ) {
 							$node['parentIndex'] = $x;
 							break;
@@ -320,16 +284,11 @@ class SkinMonaco extends SkinTemplate {
 		return $nodes;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getSidebarLinks() {
+	public function getSidebarLinks(): array {
 		return $this->parseSidebarMenu( $this->getLines( 'Monaco-sidebar' ) );
 	}
 
 	/**
-	 * @param string $name
-	 * @param bool $asArray|false
 	 * @return array|string|null
 	 */
 	public function getTransformedArticle( string $name, bool $asArray = false ) {

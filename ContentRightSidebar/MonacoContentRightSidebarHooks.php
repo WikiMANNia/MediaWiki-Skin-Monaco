@@ -65,9 +65,11 @@ class MonacoContentRightSidebarHooks implements
 		if ( $with_box && !in_array( strtolower( $with_box ), [ 'false', 'off', 'no', 'none' ] ) ) {
 			$out .= RIGHT_SIDEBAR_WITHBOX_TOKEN;
 		}
+
 		if ( isset( $args['title'] ) ) {
 			$out .= RIGHT_SIDEBAR_TITLE_START_TOKEN . urlencode( $args['title'] ) . RIGHT_SIDEBAR_TITLE_END_TOKEN;
 		}
+
 		if ( isset( $args['class'] ) ) {
 			$out .= RIGHT_SIDEBAR_CLASS_START_TOKEN . urlencode( $args['class'] ) . RIGHT_SIDEBAR_CLASS_END_TOKEN;
 		}
@@ -101,6 +103,7 @@ class MonacoContentRightSidebarHooks implements
 			if ( $start === false ) {
 				break;
 			}
+
 			$end = strpos( $html, RIGHT_SIDEBAR_END_TOKEN, $start );
 			if ( $end === false ) {
 				break;
@@ -124,6 +127,7 @@ class MonacoContentRightSidebarHooks implements
 					);
 				}
 			}
+
 			$startClass = strpos( $content, RIGHT_SIDEBAR_CLASS_START_TOKEN );
 			if ( $startClass !== false ) {
 				$endClass = strpos( $content, RIGHT_SIDEBAR_CLASS_END_TOKEN, $startClass );
@@ -142,6 +146,7 @@ class MonacoContentRightSidebarHooks implements
 			if ( $contentStart !== false ) {
 				$content = substr( $content, $contentStart + strlen( RIGHT_SIDEBAR_CONTENT_START_TOKEN ) );
 			}
+
 			$contentEnd = strpos( $content, RIGHT_SIDEBAR_CONTENT_END_TOKEN );
 			if ( $contentStart !== false ) {
 				$content = substr( $content, 0, $contentEnd );
