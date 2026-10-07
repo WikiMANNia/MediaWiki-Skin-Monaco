@@ -1,8 +1,15 @@
 <?php
 
+namespace MediaWiki\Skin\Monaco;
+
+use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Output\OutputPage;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Skin\SkinTemplate;
+use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\Title\Title;
+use MediaWiki\User\User;
 use MediaWiki\User\UserOptionsLookup;
 
 class SkinMonaco extends SkinTemplate {
@@ -19,7 +26,7 @@ class SkinMonaco extends SkinTemplate {
 	 */
 	private $config;
 
-	private $mMastheadUser;
+	private bool|User $mMastheadUser;
 	private bool $mMastheadTitleVisible;
 	private UserOptionsLookup $mUserOptionsLookup;
 	private int $lastExtraIndex = 1000;
@@ -36,7 +43,7 @@ class SkinMonaco extends SkinTemplate {
 	}
 
 	public static function getSkinMonacoThemeList(): array {
-		return [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire", "sky", "slate", "smoke", "spring", "wima" ];
+		return [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire", "sky", "slate", "smoke", "spring" ];
 	}
 
 	public static function getThemeKey(): string {
@@ -49,14 +56,14 @@ class SkinMonaco extends SkinTemplate {
 		// ResourceLoader doesn't do ie specific styles that well iirc, so we have
 		// to do those manually.
 		$out->addStyle( 'Monaco/style/css/monaco_ie8.css', 'screen', 'IE 8' );
-		$out->addStyle( 'Monaco/style/css/monaco_gteie8.css', 'screen', 'gte IE 8' );
+		$out->addStyle( 'Monaco/style/css/monaco_gteie8.css', 'screen', 'gte IE 8');
 
 		// Likewise the masthead is a conditional feature so it's hard to include
 		// inside of the ResourceLoader.
 		if ( $this->showMasthead() ) {
 			$out->addStyle( 'Monaco/style/css/masthead.css', 'screen' );
 		}
-
+		
 		$request = $this->getRequest();
 		$theme_key = self::getThemeKey();
 		$themes = self::getSkinMonacoThemeList();
@@ -82,15 +89,16 @@ class SkinMonaco extends SkinTemplate {
 				$theme = $theme_user;
 			}
 		}
-
+		
 		// Theme is another conditional feature, we can't really resource load this
 		$out->addStyle( "Monaco/style/{$theme}/css/main.css", 'screen' );
-
+		
 		// TODO: explicit RTL style sheets are supposed to be obsolete w/ResourceLoader
 		// I have no way to test this currently, however. -haleyjd
 		// rtl... hmm, how do we resource load this?
 		$out->addStyle( 'Monaco/style/rtl.css', 'screen', '', 'rtl' );
 
+		
 		$out->addScript(
 			'<!--[if IE]><script type="text/javascript' .
 				'">\'abbr article aside audio canvas details figcaption figure ' .
@@ -155,7 +163,6 @@ class SkinMonaco extends SkinTemplate {
 				}
 
 				$item = MonacoSidebar::parseItem( $trimmed );
-
 				$nodes[] = $item;
 			}
 		}
@@ -262,7 +269,6 @@ class SkinMonaco extends SkinTemplate {
 							$node['parentIndex'] = 0;
 							break;
 						}
-
 						if ( $nodes[$x]['depth'] == $node['depth'] - 1 ) {
 							$node['parentIndex'] = $x;
 							break;
@@ -288,10 +294,7 @@ class SkinMonaco extends SkinTemplate {
 		return $this->parseSidebarMenu( $this->getLines( 'Monaco-sidebar' ) );
 	}
 
-	/**
-	 * @return array|string|null
-	 */
-	public function getTransformedArticle( string $name, bool $asArray = false ) {
+	public function getTransformedArticle( string $name, bool $asArray = false ): ?string {
 		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $name ) );
 		$parser = MediaWikiServices::getInstance()->getParser();

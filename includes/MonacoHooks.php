@@ -1,7 +1,20 @@
 <?php
 
+namespace MediaWiki\Skin\Monaco;
+
 use MediaWiki\Hook\OutputPageBodyAttributesHook;
 use MediaWiki\Preferences\Hook\GetPreferencesHook;
+
+if ( class_exists( \GlobalVarConfig::class ) && /* < 1.41 */
+	!class_exists( 'MediaWiki\\Config\\GlobalVarConfig', false ) ) {
+	class_alias(
+		\GlobalVarConfig::class,
+		'MediaWiki\\Config\\GlobalVarConfig'
+	);
+}
+
+use MediaWiki\Config\GlobalVarConfig;
+use MediaWiki\Context\RequestContext;
 use MediaWiki\User\UserOptionsLookup;
 
 class MonacoHooks implements
@@ -24,6 +37,10 @@ class MonacoHooks implements
 		$this->allowedThemes = $config->get( "MonacoAllowUseTheme" );
 		$this->defaultTheme = $config->get( "MonacoTheme" );
 	}
+
+    public static function onRegistration() {
+        Compat::init();
+    }
 
 	/**
 	 * Add the theme selector to user preferences.
@@ -79,7 +96,8 @@ class MonacoHooks implements
 		$showIf = [ '!==', 'skin', 'monaco' ];
 
 		// The entry 'theme' conflicts with Extension:Theme.
-		$preferences[$theme_key] = $this->allowedThemes
+		$preferences[$theme_key] =
+			$this->allowedThemes
 			?	[
 					'type' => 'select',
 					'options' => $themeArray,
@@ -88,10 +106,9 @@ class MonacoHooks implements
 					'section' => 'rendering/skin',
 					'hide-if' => $showIf
 				]
-			:
-				// If the selection of themes is deactiveted,
-				// show only an informative message instead
-				[
+			// If the selection of themes is deactiveted,
+			// show only an informative message instead
+			:	[
 					'type' => 'info',
 					'label-message' => 'monaco-theme-prefs-label',
 					'default' => $ctx->msg( 'theme-selection-deactivated' )->text(),
@@ -132,7 +149,6 @@ class MonacoHooks implements
 		if ( !$skin->getUser()->isRegistered() ) {
 			$bodyAttrs['class'] .= ' loggedout';
 		}
-
 		if ( $out->getTitle()->isMainPage() ) {
 			$bodyAttrs['class'] .= ' mainpage';
 		}

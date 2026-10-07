@@ -1,12 +1,25 @@
 <?php
 
+namespace MediaWiki\Skin\Monaco;
+
+use MediaWiki\Config\GlobalVarConfig;
+use MediaWiki\Context\RequestContext;
+use MediaWiki\Html\Html;
+use MediaWiki\Linker\Linker;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Skin\BaseTemplate;
+use MediaWiki\Skin\SkinComponentUtils;
+use MediaWiki\SpecialPage\SpecialPage;
+use MediaWiki\Title\Title;
+use MediaWiki\User\User;
+use MediaWiki\Xml\Xml;
+use ObjectCache;
 
 class MonacoTemplate extends BaseTemplate {
 
-	private $mConfig;
-	private $mRightSidebar = '';
-	private $primaryPageBarPrinted = false;
+	private GlobalVarConfig $mConfig;
+	private string $mRightSidebar = '';
+	private bool $primaryPageBarPrinted = false;
 
 	public function __construct() {
 		$this->mConfig = new GlobalVarConfig();
@@ -44,8 +57,8 @@ class MonacoTemplate extends BaseTemplate {
 
 		$this->addVariables();
 
+		$ctx = RequestContext::getMain();
 		$skin = $this->data['skin'];
-		$ctx = $skin->getContext();
 		$lang = $skin->getLanguage();
 		$user = $skin->getUser();
 		$request = $ctx->getRequest();
@@ -56,7 +69,8 @@ class MonacoTemplate extends BaseTemplate {
 
 		$this->setupRightSidebar();
 		ob_start();
-		Hooks::run( 'MonacoRightSidebar', [ $this ] );
+		$hookContainer = $this->getHookContainer();
+		$hookContainer->run( 'MonacoRightSidebar', [ $this ] );
 		$this->addToRightSidebar( ob_get_contents() );
 		ob_end_clean();
 
@@ -65,7 +79,7 @@ class MonacoTemplate extends BaseTemplate {
 
 		// this hook allows adding extra HTML just after <body> opening tag
 		// append your content to $html variable instead of echoing
-		Hooks::run( 'GetHTMLAfterBody', [ $this, &$html ] );
+		$hookContainer->run( 'GetHTMLAfterBody', [ $this, &$html ] );
 
 		$html .= '<div id="skiplinks"> 
 	<a class="skiplink" href="#article" tabIndex=1>Skip to Content</a> 
@@ -84,7 +98,7 @@ class MonacoTemplate extends BaseTemplate {
 		'</div>
 	</div>';
 
-	if ( Hooks::run( 'AlternateNavLinks' ) ) {
+	if ( $hookContainer->run( 'AlternateNavLinks' ) ) {
 		$html .= '<div id="background_strip" class="reset">
 			<div class="monaco_shrinkwrap">
 			<div id="accent_graphic1"></div>
@@ -98,7 +112,7 @@ class MonacoTemplate extends BaseTemplate {
 	<div id="monaco_shrinkwrap_main" class="monaco_shrinkwrap with_left_sidebar'
 			. ( $this->hasRightSidebar() ? ' with_right_sidebar' : null ) . '">
 		<div id="page_wrapper">';
-		Hooks::run( 'MonacoBeforePage', [ $this, &$html ] );
+		$hookContainer->run( 'MonacoBeforePage', [ $this, &$html ] );
 		$html .= $this->printBeforePage();
 		if ( $MonacoUseSitenoticeIsland && $this->data['sitenotice'] ) {
 			$html .= '<div class="page">
@@ -107,13 +121,13 @@ class MonacoTemplate extends BaseTemplate {
 		}
 		$html .= '<div id="wikia_page" class="page">' .
 			$this->printMasthead();
-			Hooks::run( 'MonacoBeforePageBar', [ $this ] );
+			$hookContainer->run( 'MonacoBeforePageBar', [ $this ] );
 			$html .= $this->printPageBar() . '
 
 			<!-- ARTICLE -->
 				<article id="content" class="mw-body" role="main" aria-labelledby="firstHeading">
 					<a id="top"></a>';
-					Hooks::run( 'MonacoAfterArticle', [ $this, &$html ] );
+					$hookContainer->run( 'MonacoAfterArticle', [ $this, &$html ] );
 		if ( !$MonacoUseSitenoticeIsland && $this->data['sitenotice'] ) {
 			$html .= '<div id="siteNotice">' . $this->get( 'sitenotice' ) . '</div>';
 		}
@@ -153,7 +167,7 @@ class MonacoTemplate extends BaseTemplate {
 		$namespaceType = '';
 		// assign $this to a temporary variable so we can pass it as a reference
 		$template = $this;
-		Hooks::run( 'CustomArticleFooter', [ &$template, &$tpl, &$custom_article_footer ] );
+		$hookContainer->run( 'CustomArticleFooter', [ &$template, &$tpl, &$custom_article_footer ] );
 		if ( !empty( $custom_article_footer ) ) {
 			$html .= $custom_article_footer;
 		} else {
@@ -181,7 +195,7 @@ class MonacoTemplate extends BaseTemplate {
 					$custom_article_footer = '';
 					// assign $this to a temporary variable so we can pass it as a reference
 					$template = $this;
-					Hooks::run( 'AddNewTalkSection', [ &$template, &$tpl, &$custom_article_footer ] );
+					$hookContainer->run( 'AddNewTalkSection', [ &$template, &$tpl, &$custom_article_footer ] );
 					if ( !empty( $custom_article_footer ) ) {
 						 $html .= $custom_article_footer;
 					}
@@ -201,9 +215,10 @@ class MonacoTemplate extends BaseTemplate {
 							)->text()
 						)
 					);
+					$html .= "\n";
 				}
 
-				$myContext = $this->getSkin()->getContext();
+				$myContext = RequestContext::getMain();
 
 				if ( $myContext->canUseWikiPage() ) {
 					$wikiPage = $myContext->getWikiPage();
@@ -384,14 +399,20 @@ class MonacoTemplate extends BaseTemplate {
 					'class' => 'sprite random',
 					'alt' => ''
 				] );
+				$url_to_randompage =
+					method_exists( \MediaWiki\Skin\SkinComponentUtils::class, 'makeSpecialUrl' )
+					// Works with mediawiki version >= 1.41
+					? \MediaWiki\Skin\SkinComponentUtils::makeSpecialUrl( 'Randompage' )
+					// Support for MediaWiki versions < 1.41
+					: \MediaWiki\Skin\Skin::makeSpecialUrl( 'Randompage' );
 				$feRandIcon = Html::rawElement(
 					'a',
-					[ 'id' => 'fe_random_icon', 'href' => Skin::makeSpecialUrl( 'Randompage' ) ],
+					[ 'id' => 'fe_random_icon', 'href' => $url_to_randompage ],
 					$feRandIcon
 				);
 				$feRandLink = Html::rawElement(
 					'a',
-					[ 'id' => 'fe_random_link', 'href' => Skin::makeSpecialUrl( 'Randompage' ) ],
+					[ 'id' => 'fe_random_link', 'href' => $url_to_randompage ],
 					wfMessage( 'viewrandompage' )->escaped()
 				);
 
@@ -428,9 +449,7 @@ class MonacoTemplate extends BaseTemplate {
 				$html .= "</div>\n";
 			} // end $namespaceType != 'none'
 		} // end else from CustomArticleFooter hook
-
 				$html .= '<!-- /ARTICLE FOOTER -->
-
 			</div>
 			<!-- /PAGE -->
 
@@ -453,6 +472,7 @@ class MonacoTemplate extends BaseTemplate {
 			<!-- SEARCH/NAVIGATION -->
 			<div class="widget sidebox navigation_box" id="navigation_widget" role="navigation">';
 
+		$sitename = $this->mConfig->get( 'Sitename' );
 		$MonacoSearchDefaultFulltext = $this->mConfig->get( 'MonacoSearchDefaultFulltext' );
 		$msgSearchLabel = wfMessage( 'Tooltip-search' )->escaped();
 		$searchAction = SpecialPage::newSearchPage( $user )->getLocalURL();
@@ -481,11 +501,11 @@ class MonacoTemplate extends BaseTemplate {
 						'" id="search-button" class="sprite search" tabIndex=2 />
 				</form>
 			</div>';
-		$monacoSidebar = new MonacoSidebar();
+		$monacoSidebar = new MonacoSidebar( $hookContainer );
 		if ( isset( $this->data['content_actions']['edit'] ) ) {
 			$monacoSidebar->editUrl = $this->data['content_actions']['edit']['href'];
 		}
-		$html .= $monacoSidebar->getCode();
+#		$html .= $monacoSidebar->getCode(); /* Wofür ist das? / What is this for? */
 
 		$html .= '<table style="border-spacing: 0;" id="link_box_table">';
 	// BEGIN: create dynamic box
@@ -524,8 +544,7 @@ class MonacoTemplate extends BaseTemplate {
 			}
 			$EnableUploads = $this->mConfig->get( 'EnableUploads' );
 			$UploadNavigationUrl = $this->mConfig->get( 'UploadNavigationUrl' );
-			if ( ( $EnableUploads || !empty( $UploadNavigationUrl ) ) && ( $user->isAllowed( 'upload' ) ||
-					$user->isAnon() || !empty( $UploadNavigationUrl ) ) ) {
+			if ( ( $EnableUploads || !empty( $UploadNavigationUrl ) ) && ( $user->isAllowed( 'upload' ) || $user->isAnon() || $UploadNavigationUrl ) ) {
 				$uploadPage = SpecialPage::getTitleFor( 'Upload' );
 				/* Redirect to login page instead of showing error, see Login friction project */
 				if ( !empty( $UploadNavigationUrl ) ) {
@@ -541,7 +560,7 @@ class MonacoTemplate extends BaseTemplate {
 			}
 
 			$html .= $this->extendDynamicLinks( $dynamicLinksInternal );
-			Hooks::run( 'MonacoDynamicLinks', [ $this, &$dynamicLinksInternal ] );
+			$hookContainer->run( 'MonacoDynamicLinks', [ $this, &$dynamicLinksInternal ] );
 			$html .= $this->extendDynamicLinksAfterHook( $dynamicLinksInternal );
 
 			$dynamicLinksUser = [];
@@ -698,7 +717,6 @@ class MonacoTemplate extends BaseTemplate {
 						$html .= '</ul>
 				</td>
 			</tr>';
-
 			$MonacoEnablePaypal  = $this->mConfig->get( 'MonacoEnablePaypal' );
 			$MonacoPaypalID      = $this->mConfig->get( 'MonacoPaypalID' );
 			$MonacoEnablePatreon = $this->mConfig->get( 'MonacoEnablePatreon' );
@@ -752,14 +770,13 @@ class MonacoTemplate extends BaseTemplate {
 			}
 			$html .= '</tbody>';
 		}
-
 	// END: create static box
 		$html .= "</table>\n";
-		Hooks::run( 'MonacoStaticboxEnd', [ $this, &$html ] );
+		$hookContainer->run( 'MonacoStaticboxEnd', [ $this, &$html ] );
 		$html .= '</div>
 			<!-- /SEARCH/NAVIGATION -->' .
 		$this->printExtraSidebar();
-		Hooks::run( 'MonacoSidebarEnd', [ $this, &$html ] );
+		$hookContainer->run( 'MonacoSidebarEnd', [ $this, &$html ] );
 		$html .= "</div>\n
 		<!-- /WIDGETS -->\n
 	<!--/div-->\n";
@@ -767,7 +784,7 @@ class MonacoTemplate extends BaseTemplate {
 // curse like cobranding
 		$html .= $this->printCustomFooter();
 		$html .= "</div>\n";
-		Hooks::run( 'SpecialFooter' );
+		$hookContainer->run( 'SpecialFooter' );
 		$html .= '<div id="positioned_elements" class="reset"></div>';
 		echo $html;
 	} // end execute()
@@ -800,18 +817,18 @@ class MonacoTemplate extends BaseTemplate {
 		}
 
 		if ( $user->isRegistered() ) {
-			if ( empty( $user->mMonacoData ) || ( $skin->getTitle()->inNamespace( NS_USER ) &&
-					( $skin->getRequest()->getText( 'action' ) == 'delete' ) ) ) {
+			if ( empty( $user->mMonacoData ) ||
+				( $skin->getTitle()->inNamespace( NS_USER ) && ( $skin->getRequest()->getText( 'action' ) === 'delete' ) )
+			) {
 				$user->mMonacoData = [];
 
 				$text = $skin->getTransformedArticle( 'User:' . $user->getName() . '/Monaco-toolbox', true );
-				if ( empty( $text ) ) {
-					$user->mMonacoData['toolboxlinks'] = false;
-				} else {
-					$user->mMonacoData['toolboxlinks'] = $skin->parseToolboxLinks( $text );
-				}
+				$user->mMonacoData['toolboxlinks'] =
+					empty( $text )
+					? false
+					: $skin->parseToolboxLinks( $text );
 			}
-			if ( $user->mMonacoData['toolboxlinks'] !== false && is_array( $user->mMonacoData['toolboxlinks'] ) ) {
+			if ( ( $user->mMonacoData['toolboxlinks'] !== false ) && is_array( $user->mMonacoData['toolboxlinks'] ) ) {
 				$data_array['toolboxlinks'] = $user->mMonacoData['toolboxlinks'];
 			}
 		}
@@ -824,7 +841,6 @@ class MonacoTemplate extends BaseTemplate {
 					unset( $data_array['toolboxlinks'][$key] );
 				}
 			}
-
 			if ( isset( $val['org'] ) && $val['org'] == 'permalink' ) {
 				if ( isset( $this->data['nav_urls']['permalink'] ) ) {
 					$data_array['toolboxlinks'][$key]['href'] = $this->data['nav_urls']['permalink']['href'];
@@ -843,7 +859,7 @@ class MonacoTemplate extends BaseTemplate {
 		$this->set( 'userlinks', $this->getUserLinks() );
 	}
 
-	private function getArticleLinks(): array {
+	private function getArticleLinks() {
 		$skin = $this->getSkin();
 		$links = [];
 
@@ -855,23 +871,21 @@ class MonacoTemplate extends BaseTemplate {
 					if ( isset( $val['redundant'] ) && $val['redundant'] ) {
 						continue;
 					}
-
-					$kk = ( isset( $val['id'] ) && substr( $val['id'], 0, 3 ) == 'ca-' )
-						? substr( $val['id'], 3 )
-						: $key;
-
+					
+					$kk = ( isset( $val['id'] ) && substr( $val['id'], 0, 3 ) == 'ca-' ) ? substr( $val['id'], 3 ) : $key;
+					
 					$msgKey = $kk;
 					if ( $kk == 'edit' ) {
 						$title = $skin->getRelevantTitle();
-						$msgKey = $title->exists() ||
-							( $title->inNamespace( NS_MEDIAWIKI ) &&
-								!wfMessage( $title->getText() )->inContentLanguage()->isBlank() )
-							? 'edit' : 'create';
+						$msgKey =
+							$title->exists() || ( $title->inNamespace( NS_MEDIAWIKI ) && !wfMessage( $title->getText() )->inContentLanguage()->isBlank() )
+							? 'edit'
+							: 'create';
 					}
-
+					
 					// @note We know we're in 1.18 so we don't need to pass the second param to wfEmptyMsg anymore
 					$tabText = wfMessage( "monaco-tab-{$msgKey}" )->text();
-					if ( $tabText && $tabText != '-' && wfMessage( "monaco-tab-{$msgKey}" )->exists() ) {
+					if ( $tabText && ( $tabText != '-' ) && wfMessage( "monaco-tab-{$msgKey}" )->exists() ) {
 						$val['text'] = $tabText;
 					}
 
@@ -901,10 +915,11 @@ class MonacoTemplate extends BaseTemplate {
 			foreach ( $this->data['content_actions'] as $key => $val ) {
 				$msgKey = $key;
 				if ( $key == 'edit' ) {
-					$msgKey = $skin->getTitle()->exists() ||
-						( $skin->getTitle()->inNamespace( NS_MEDIAWIKI ) &&
-							wfMessage( $skin->getTitle()->getText() )->exists() )
-						? 'edit' : 'create';
+					$title = $skin->getTitle();
+					$msgKey =
+						$skin->getTitle()->exists() || ( $title->inNamespace( NS_MEDIAWIKI ) && wfMessage( $title->getText() )->exists() )
+						? 'edit'
+						: 'create';
 				}
 
 				$tabText = wfMessage( "monaco-tab-{$msgKey}" )->text();
@@ -914,7 +929,7 @@ class MonacoTemplate extends BaseTemplate {
 
 				if ( strpos( $key, 'varlang-' ) === 0 ) {
 					$links['variants'][$key] = $val;
-				} elseif ( strpos( $key, 'nstab-' ) === 0 || in_array( $key, $force_right ) ) {
+				} elseif ( ( strpos( $key, 'nstab-' ) === 0 ) || in_array( $key, $force_right ) ) {
 					$links['right'][$key] = $val;
 				} else {
 					$links['left'][$key] = $val;
@@ -942,7 +957,7 @@ class MonacoTemplate extends BaseTemplate {
 		return $links;
 	}
 
-	private function getUserLinks(): array {
+	private function getUserLinks() {
 		$skin = $this->getSkin();
 
 		$data = [];
@@ -970,7 +985,7 @@ class MonacoTemplate extends BaseTemplate {
 		$returnto = wfArrayToCGI( $a );
 
 		if ( !$user->isRegistered() ) {
-			$signUpHref = Skin::makeSpecialUrl( 'Userlogin', $returnto );
+			$signUpHref = SkinComponentUtils::makeSpecialUrl( 'Userlogin', $returnto );
 			$data['login'] = [
 				'text' => wfMessage( 'login' )->text(),
 				'href' => $signUpHref . '&type=login'
@@ -980,6 +995,7 @@ class MonacoTemplate extends BaseTemplate {
 				'href' => $signUpHref . '&type=signup'
 			];
 		} else {
+			/* Use of QuickTemplate with parameter `personal_urls` is deprecated */
 			$data['userpage'] = [
 				'text' => $user->getName(),
 				'href' => $this->data['personal_urls']['userpage']['href']
@@ -1044,31 +1060,29 @@ class MonacoTemplate extends BaseTemplate {
 	/**
 	 * Allow subskins to tweak dynamic links
 	 * @param array &$dynamicLinks
+	 * @return string
 	 */
-	protected function extendDynamicLinks( &$dynamicLinks ): string {
+	protected function extendDynamicLinks( &$dynamicLinks ) {
 		return '';
 	}
 
 	/**
 	 * @param array &$dynamicLinks
+	 * @return string
 	 */
-	protected function extendDynamicLinksAfterHook( &$dynamicLinks ): string {
+	protected function extendDynamicLinksAfterHook( &$dynamicLinks ) {
 		return '';
 	}
 
 	/**
 	 * Allow subskins to add extra sidebar extras
+	 * @return string
 	 */
-	protected function printExtraSidebar(): string {
+	function printExtraSidebar() {
 		return '';
 	}
 
-	/**
-	 * @param string $bar
-	 * @param string|array $cont
-	 * @param array $options
-	 */
-	protected function sidebarBox( $bar, $cont, $options = [] ): string {
+	function sidebarBox( $bar, $cont, $options = [] ) {
 		$titleClass = 'sidebox_title';
 		$contentClass = 'sidebox_contents';
 		if ( isset( $options['widget'] ) && $options['widget'] ) {
@@ -1104,11 +1118,7 @@ class MonacoTemplate extends BaseTemplate {
 			$boxContent = $cont;
 		}
 		if ( !isset( $options['wrapcontents'] ) || $options['wrapcontents'] ) {
-			$boxContent = "				" .
-				Html::rawElement( 'div',
-					[ 'class' => $contentClass ],
-					"\n" . $boxContent . "				"
-				) . "\n";
+			$boxContent = "				" . Html::rawElement( 'div', [ 'class' => $contentClass ], "\n" . $boxContent . "				" ) . "\n";
 		}
 		$box .= $boxContent;
 		$box .= Xml::closeElement( 'div ' );
@@ -1116,60 +1126,53 @@ class MonacoTemplate extends BaseTemplate {
 		return $box;
 	}
 
-	/**
-	 * @param string $bar
-	 * @param string|array $cont
-	 */
-	protected function customBox( $bar, $cont ): string {
+	function customBox( $bar, $cont ) {
 		return $this->sidebarBox( $bar, $cont );
 	}
 
-	/**
-	 * Hook for subskins
-	 */
-	protected function setupRightSidebar() {
+	// hook for subskins
+	function setupRightSidebar() {
 	}
 
-	protected function addToRightSidebar( string $html ): string {
+	function addToRightSidebar( $html ) {
 		return $this->mRightSidebar .= $html;
 	}
 
-	protected function hasRightSidebar(): bool {
-		return !empty( trim( $this->mRightSidebar ) );
+	function hasRightSidebar() {
+		return (bool)trim( $this->mRightSidebar );
 	}
 
 	// Hook for things that you only want in the sidebar if there are already things
 	// inside the sidebar.
-	protected function lateRightSidebar() {
+	function lateRightSidebar() {
 	}
 
-	protected function printRightSidebar(): string {
+	function printRightSidebar() {
 		if ( $this->hasRightSidebar() ) {
 			$html = '<!-- RIGHT SIDEBAR -->
 		 <div id="right_sidebar" class="sidebar right_sidebar">' .
 			$this->lateRightSidebar();
-			Hooks::run( 'MonacoRightSidebar::Late', [ $this ] );
+			$hookContainer->run( 'MonacoRightSidebar::Late', [ $this ] );
 			$html .= $this->mRightSidebar . '
 		</div>
 		<!-- /RIGHT SIDEBAR -->';
 			return $html;
 		}
-		return '';
 	}
 
-	protected function printMonacoBranding(): string {
+	function printMonacoBranding() {
+		$hookContainer = $this->getHookContainer();
 		ob_start();
-		Hooks::run( 'MonacoBranding', [ $this ] );
+		$hookContainer->run( 'MonacoBranding', [ $this ] );
 		$branding = ob_get_contents();
 		ob_end_clean();
 
 		if ( trim( $branding ) ) {
 			return '<div id="monacoBranding">' . $branding . '</div>';
 		}
-		return '';
 	}
 
-	protected function printUserData(): string {
+	function printUserData() {
 		$skin = $this->data['skin'];
 		$user = $skin->getUser();
 		$html = '<div id="userData">';
@@ -1183,14 +1186,13 @@ class MonacoTemplate extends BaseTemplate {
 			// Output the facebook connect links that were added with PersonalUrls.
 			// @author Sean Colombo
 			foreach ( $this->data['userlinks'] as $linkName => $linkData ) {
-
 				if ( !empty( $linkData['html'] ) ) {
 					$html .= $linkData['html'];
 				}
 			}
 
 			if ( $user->isRegistered() ) {
-				$toolbar = $this->getPersonalTools();
+				$toolbar = $this->getPersonalTools(); /* deprecated in 1.46 */
 
 				unset( $toolbar['preferences'] );
 				unset( $toolbar['mycontris'] );
@@ -1201,16 +1203,15 @@ class MonacoTemplate extends BaseTemplate {
 
 				if ( $this->useUserMore() ) {
 					$html .= '<span class="more hovermenu">
-					<button id="headerButtonUser" class="header-button color1" tabIndex="-1">' .
-						trim( wfMessage( 'moredotdotdot' )->escaped(), ' .' ) .
-						'<img src="' . $this->get( 'blankimg' ) . '" /></button>
+					<button id="headerButtonUser" class="header-button color1" tabIndex="-1">' . trim( wfMessage( 'moredotdotdot' )->escaped(), ' .' ) . '<img src="' . $this->get( 'blankimg' ) . '" /></button>
 					<span class="invisibleBridge"></span>
 					<div id="headerMenuUser" class="headerMenu color1 reset">
 						<ul>';
 
 					foreach ( $this->data['userlinks']['more'] as $key => $link ) {
 						if ( $key != 'userpage' ) { // haleyjd 20140420: Do not repeat user page here.
-							$html .= Html::rawElement( 'li',
+							$html .= Html::rawElement(
+								'li',
 								[ 'id' => 'header_$key' ],
 								Html::element( 'a', [ 'href' => $link['href'] ], $link['text'] )
 							) . "\n";
@@ -1222,18 +1223,14 @@ class MonacoTemplate extends BaseTemplate {
 				} else {
 					foreach ( $this->data['userlinks']['more'] as $key => $link ) {
 						if ( $key != 'userpage' ) { // haleyjd 20140420: Do not repeat user page here.
-							$html .= Html::rawElement( 'span',
-								[ 'id' => "header_$key" ],
-								Html::element( 'a', [ 'href' => $link['href'] ], $link['text'] )
-							) . "\n";
+							$html .= Html::rawElement( 'span', [ 'id' => "header_$key" ],
+								Html::element( 'a', [ 'href' => $link['href'] ], $link['text'] ) ) . "\n";
 						}
 					}
 				}
 				$html .= '<span>' .
-					Html::element( 'a',
-						[ 'href' => $this->data['userlinks']['logout']['href'] ] + Linker::tooltipAndAccesskeyAttribs( 'pt-logout' ),
-						$this->data['userlinks']['logout']['text']
-					) . '</span>';
+					Html::element( 'a', [ 'href' => $this->data['userlinks']['logout']['href'] ] + Linker::tooltipAndAccesskeyAttribs( 'pt-logout' ), $this->data['userlinks']['logout']['text'] ) .
+				'</span>';
 			} else {
 				$html .= '<span id="userLogin">
 					<a class="wikia-button" id="login" href="' . htmlspecialchars( $this->data['userlinks']['login']['href'] ) . '">' . htmlspecialchars( $this->data['userlinks']['login']['text'] ) . '</a>
@@ -1242,7 +1239,7 @@ class MonacoTemplate extends BaseTemplate {
 			}
 		}
 			$html .= '</div>';
-
+			
 			return $html;
 	}
 
@@ -1266,15 +1263,15 @@ class MonacoTemplate extends BaseTemplate {
 		return '';
 	}
 
-	protected function printMasthead(): string {
+	function printMasthead() {
 		$skin = $this->data['skin'];
 		if ( !$skin->showMasthead() ) {
 			return '';
 		}
-		$language = $this->getSkin()->getLanguage();
+		$lang = $this->getSkin()->getLanguage();
 		$user = $skin->getMastheadUser();
 		$username = $user->isAnon() ? wfMessage( 'masthead-anonymous-user' )->text() : $user->getName();
-		$editcount = $language->formatNum( $user->isAnon() ? 0 : $user->getEditcount() );
+		$editcount = $lang->formatNum( $user->isAnon() ? 0 : $user->getEditcount() );
 		$html = '
 			<div id="user_masthead" class="accent reset clearfix">
 				<div id="user_masthead_head" class="clearfix">
@@ -1282,8 +1279,7 @@ class MonacoTemplate extends BaseTemplate {
 		if ( $user->isAnon() ) {
 						$html .= '<small id="user_masthead_anon">' . $user->getName() . '</small>';
 		} else {
-						$html .= '<div id="user_masthead_scorecard" class="dark_text_1">' .
-							htmlspecialchars( $editcount ) . '</div>';
+						$html .= '<div id="user_masthead_scorecard" class="dark_text_1">' . htmlspecialchars( $editcount ) . '</div>';
 		}
 						$html .= '</h2>
 				</div>
@@ -1306,12 +1302,12 @@ class MonacoTemplate extends BaseTemplate {
 	}
 
 	// Made a separate method so recipes, answers, etc can override. Notably, answers turns it off.
-	protected function printPageBar(): string {
+	function printPageBar() {
 		// Allow for other skins to conditionally include it
 		return $this->realPrintPageBar();
 	}
 
-	protected function realPrintPageBar(): string {
+	function realPrintPageBar() {
 		foreach ( $this->data['articlelinks'] as $side => $links ) {
 			foreach ( $links as $key => $link ) {
 				$this->data['articlelinks'][$side][$key]['id'] = "ca-$key";
@@ -1458,8 +1454,9 @@ class MonacoTemplate extends BaseTemplate {
 			$html .= Xml::closeElement( 'li' );
 			$html .= "\n";
 		}
+		$hookContainer = $this->getHookContainer();
 		if ( $hook ) {
-			Hooks::run( $hook );
+			$hookContainer->run( $hook );
 		}
 		$html .= "$indent</ul>\n";
 
@@ -1469,12 +1466,13 @@ class MonacoTemplate extends BaseTemplate {
 	/**
 	 * Made a separate method so recipes, answers, etc can override. Notably, answers turns it off.
 	 */
-	protected function printFirstHeading() {
+	protected function printFirstHeading(): string {
+		$hookContainer = $this->getHookContainer();
 		if ( !$this->data['skin']->isMastheadTitleVisible() ) {
 			return '';
 		}
 		$html = '<h1 id="firstHeading" class="firstHeading" aria-level="1">' . $this->get( 'title' );
-		Hooks::run( 'MonacoPrintFirstHeading' );
+		$hookContainer->run( 'MonacoPrintFirstHeading' );
 		$html .= '</h1>';
 
 		return $html;

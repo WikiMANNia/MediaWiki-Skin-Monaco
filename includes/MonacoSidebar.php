@@ -1,36 +1,40 @@
 <?php
 
+namespace MediaWiki\Skin\Monaco;
+
+use MediaWiki\Context\RequestContext;
+use MediaWiki\HookContainer\HookContainer;
+use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Title\Title;
+use MediaWiki\Utils\UrlUtils;
+use ObjectCache;
 
 class MonacoSidebar {
-	/** @var array */
-	public $biggestCategories = [];
 
-	/** @var string */
-	public $editUrl = '';
+	public array $biggestCategories;
+	public string $editUrl = '';
+	private HookContainer $hookContainer;
 
-	/**
-	 * @param Title $title
-	 * @param string $text
-	 */
-	public static function invalidateCache( $title, $text ) {
+	public function __construct( HookContainer $hookContainer ) {
+		$this->hookContainer = $hookContainer;
+	}
+
+	public static function invalidateCache( Title $title, string $text ) {
 		$memc = ObjectCache::getLocalClusterInstance();
 		$memc->delete( $memc->makeKey( 'mMonacoSidebar', 'monacoSidebar' ) );
 	}
 
 	/**
 	 * Parse one line from MediaWiki message to array with indexes 'text' and 'href'
-	 *
-	 * @param string $line
-	 * @return array
 	 */
-	public static function parseItem( $line ) {
+	public static function parseItem( string $line ): array {
 		$href = $specialCanonicalName = false;
 
 		$line_temp = explode( '|', trim( $line, '* ' ), 3 );
 		$line_temp[0] = trim( $line_temp[0], '[]' );
 
-		if ( ( count( $line_temp ) >= 2 ) && ( $line_temp[1] != '' ) ) {
+		if ( count( $line_temp ) >= 2 && $line_temp[1] != '' ) {
 			$line = trim( $line_temp[1] );
 			$link = trim( wfMessage( $line_temp[0] )->inContentLanguage()->text() );
 		} else {
@@ -76,7 +80,6 @@ class MonacoSidebar {
 							$specialCanonicalName = $dbkey;
 						}
 					}
-
 					$title = $title->fixSpecialName();
 					$href = $title->getLocalURL();
 				} else {
@@ -94,11 +97,7 @@ class MonacoSidebar {
 		];
 	}
 
-	/**
-	 * @param string $messageKey
-	 * @return array|null
-	 */
-	public static function getMessageAsArray( $messageKey ) {
+	public static function getMessageAsArray( string $messageKey ): ?array {
 		$message = trim( wfMessage( $messageKey )->inContentLanguage()->text() );
 
 		if ( !wfMessage( $messageKey )->inContentLanguage()->isBlank() ) {
@@ -112,10 +111,7 @@ class MonacoSidebar {
 		return null;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getCode() {
+	public function getCode(): string {
 		$memc = ObjectCache::getLocalClusterInstance();
 
 		$contLang = MediaWikiServices::getInstance()->getContentLanguage();
@@ -138,10 +134,7 @@ class MonacoSidebar {
 		return $menu;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getMenuLines() {
+	public function getMenuLines(): array {
 		if ( empty( $lines ) ) {
 			$lines = self::getMessageAsArray( 'Monaco-sidebar' );
 		}
@@ -149,12 +142,7 @@ class MonacoSidebar {
 		return $lines;
 	}
 
-	/**
-	 * @param array $nodes
-	 * @param array $children
-	 * @return string
-	 */
-	public function getSubMenu( $nodes, $children ) {
+	public function getSubMenu( array $nodes, array $children ): string {
 		$menu = '';
 
 		foreach ( $children as $key => $val ) {
@@ -183,16 +171,11 @@ class MonacoSidebar {
 		return $menu;
 	}
 
-	/**
-	 * @param array $lines
-	 * @param bool $userMenu
-	 * @return bool
-	 */
-	public function getMenu( $lines, $userMenu = false ) {
+	public function getMenu( array $lines, bool $userMenu = false ): bool {
 		$nodes = $this->parseSidebar( $lines );
 
 		if ( count( $nodes ) > 0 ) {
-			Hooks::run( 'MonacoSidebarGetMenu', [ &$nodes ] );
+			$this->hookContainer->run( 'MonacoSidebarGetMenu', [ &$nodes ] );
 
 			$menu = '';
 			$mainMenu = [];
@@ -200,12 +183,10 @@ class MonacoSidebar {
 				if ( isset( $nodes[$val]['children'] ) ) {
 					$mainMenu[$val] = $nodes[$val]['children'];
 				}
-
 				if ( isset( $nodes[$val]['magic'] ) ) {
 					$mainMenu[$val] = $nodes[$val]['magic'];
 				}
-
-				if ( isset( $nodes[$val]['href'] ) && $nodes[$val]['href'] == 'editthispage' ) {
+				if ( isset( $nodes[$val]['href'] ) && ( $nodes[$val]['href'] == 'editthispage' ) ) {
 					$menu .= '<!--b-->';
 				}
 
@@ -220,19 +201,17 @@ class MonacoSidebar {
 				if ( !isset( $nodes[$val]['internal'] ) || !$nodes[$val]['internal'] ) {
 					$menu .= ' rel="nofollow"';
 				}
-
 				$menu .= ' tabIndex=3>' . htmlspecialchars( $nodes[$val]['text'] );
 				if ( !empty( $nodes[$val]['children'] ) || !empty( $nodes[$val]['magic'] ) ) {
 					$menu .= '<em>&rsaquo;</em>';
 				}
-
 				$menu .= '</a>';
 				if ( !empty( $nodes[$val]['children'] ) || !empty( $nodes[$val]['magic'] ) ) {
 					$menu .= $this->getSubMenu( $nodes, $nodes[$val]['children'] );
 				}
 				$menu .= '</li>';
 
-				if ( isset( $nodes[$val]['href'] ) && ( $nodes[$val]['href'] == 'editthispage' ) ) {
+				if ( isset( $nodes[$val]['href'] ) && $nodes[$val]['href'] == 'editthispage' ) {
 					$menu .= '<!--e-->';
 				}
 			}
@@ -262,7 +241,7 @@ class MonacoSidebar {
 			$menuHash = hash( 'md5', serialize( $nodes ) );
 
 			foreach ( $nodes as $key => $val ) {
-				if ( !isset( $val['depth'] ) || ( $val['depth'] == 1 ) ) {
+				if ( !isset( $val['depth'] ) || $val['depth'] == 1 ) {
 					unset( $nodes[$key] );
 				}
 
@@ -277,7 +256,6 @@ class MonacoSidebar {
 			}
 
 			$memc = ObjectCache::getLocalClusterInstance();
-
 			// three days
 			$memc->set( $menuHash, $nodes, 60 * 60 * 24 * 3 );
 
@@ -285,11 +263,7 @@ class MonacoSidebar {
 		}
 	}
 
-	/**
-	 * @param array &$node
-	 * @return bool
-	 */
-	public function handleMagicWord( &$node ) {
+	public function handleMagicWord( array &$node ): bool {
 		$original_lower = strtolower( $node['original'] );
 
 		if ( in_array( $original_lower, [ '#voted#', '#popular#', '#visited#', '#newlychanged#', '#topusers#' ] ) ) {
@@ -363,7 +337,7 @@ class MonacoSidebar {
 		// Get group membership array.
 		$groups = $user->getEffectiveGroups();
 
-		Hooks::run( 'DynamicSidebarGetGroups', [ &$groups ] );
+		$this->hookContainer->run( 'DynamicSidebarGetGroups', [ &$groups ] );
 
 		// Did we find any groups?
 		if ( count( $groups ) == 0 ) {
@@ -391,11 +365,8 @@ class MonacoSidebar {
 
 	/**
 	 * Parse Sidebar Lines
-	 *
-	 * @param array $lines
-	 * @return array
 	 */
-	public function parseSidebar( $lines ) {
+	public function parseSidebar( array $lines ): array {
 		$context = RequestContext::getMain();
 
 		$nodes = [];
@@ -414,7 +385,8 @@ class MonacoSidebar {
 
 				// expand to user sidebar
 				if ( $node['original'] == 'USER-SIDEBAR' ) {
-					$this->processSpecialSidebar( $this->doUserSidebar( $context->getUser() ),
+					$this->processSpecialSidebar(
+						$this->doUserSidebar( $context->getUser() ),
 						$lastDepth, $nodes, $i );
 
 					// we don't add the placeholder, we add the menu which is behind it
@@ -423,7 +395,8 @@ class MonacoSidebar {
 
 				// expand to group sidebar
 				if ( $node['original'] == 'GROUP-SIDEBAR' ) {
-					$this->processSpecialSidebar( $this->doGroupSidebar( $context->getUser() ),
+					$this->processSpecialSidebar(
+						$this->doGroupSidebar( $context->getUser() ),
 						$lastDepth, $nodes, $i );
 
 					// we don't add the placeholder, we add the menu which is behind it
@@ -436,7 +409,7 @@ class MonacoSidebar {
 						// we have to know later if there is editthispage special word used in first level
 						$nodes[0]['editthispage'] = true;
 					}
-				} elseif ( !empty( $node['original'] ) && ( $node['original'][0] == '#' ) ) {
+				} elseif ( !empty( $node['original'] ) && $node['original'][0] == '#' ) {
 					if ( $this->handleMagicWord( $node ) ) {
 						$nodes[0]['magicWords'][] = $node['magic'];
 
@@ -458,17 +431,14 @@ class MonacoSidebar {
 
 	/**
 	 * Parse Line of Sidebar
-	 *
-	 * @param string $line
-	 * @return array
 	 */
-	public function parseSidebarLine( $line ) {
+	public function parseSidebarLine( string $line ): array {
 		$lineTmp = explode( '|', trim( $line, '* ' ), 2 );
 		// for external links defined as [http://example.com] instead of just http://example.com
 		$lineTmp[0] = trim( $lineTmp[0], '[]' );
 		$internal = false;
 
-		if ( ( count( $lineTmp ) == 2 ) && ( $lineTmp[1] != '' ) ) {
+		if ( count( $lineTmp ) == 2 && $lineTmp[1] != '' ) {
 			$link = trim( wfMessage( $lineTmp[0] )->inContentLanguage()->text() );
 			$line = trim( $lineTmp[1] );
 		} else {
@@ -514,13 +484,8 @@ class MonacoSidebar {
 
 	/**
 	 * Process a list of elements and add them to the corrent position in the current menu
-	 *
-	 * @param array $lines
-	 * @param int &$lastDepth
-	 * @param array &$nodes
-	 * @param int &$index
 	 */
-	public function processSpecialSidebar( $lines, &$lastDepth, &$nodes, &$index ) {
+	public function processSpecialSidebar( array $lines, int &$lastDepth, array &$nodes, int &$index ): void {
 		if ( is_array( $lines ) && ( count( $lines ) > 0 ) ) {
 			foreach ( $lines as $line ) {
 				if ( empty( trim( $line ) ) ) {
@@ -540,15 +505,8 @@ class MonacoSidebar {
 	/**
 	 * Calculate and add the depth of the current node.
 	 * Set the array index of the parent node to the current node
-	 *
-	 * @param string $line
-	 * @param array $node
-	 * @param array &$nodes
-	 * @param int &$index
-	 * @param int &$lastDepth
-	 * @return array
 	 */
-	public function addDepthParentToNode( $line, $node, &$nodes, &$index, &$lastDepth ) {
+	public function addDepthParentToNode( string $line, array $node, array &$nodes, int &$index, int &$lastDepth ): array {
 		// calculate the depth of this node in the menu
 		$node['depth'] = strrpos( $line, '*' ) + 1;
 
@@ -575,14 +533,8 @@ class MonacoSidebar {
 
 	/**
 	 * Add Node as newest Item of the Menu
-	 *
-	 * @param array $node
-	 * @param array &$nodes
-	 * @param int $index
-	 * @param int &$lastDepth
-	 * @return int
 	 */
-	public function addNodeToSidebar( $node, &$nodes, $index, &$lastDepth ) {
+	public function addNodeToSidebar( array $node, array &$nodes, int $index, int &$lastDepth ): int {
 		$nodes[$index + 1] = $node;
 		$nodes[ $node['parentIndex'] ]['children'][] = $index + 1;
 		$lastDepth = $node['depth'];
@@ -591,11 +543,7 @@ class MonacoSidebar {
 		return $index;
 	}
 
-	/**
-	 * @param int $index
-	 * @return string|null
-	 */
-	public function getBiggestCategory( $index ) {
+	public function getBiggestCategory( int $index ): ?string {
 		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'monaco' );
 
 		$memc = ObjectCache::getLocalClusterInstance();
@@ -612,12 +560,13 @@ class MonacoSidebar {
 					$filterWordsA[] = '(cl_to not like "%' . $word . '%")';
 				}
 
-				$dbr = self::getReadingConnect();
+				$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getMaintenanceConnectionRef( DB_REPLICA );
 				$tables = [ 'categorylinks' ];
 				$fields = [ 'cl_to, COUNT(*) AS cnt' ];
 				$where = count( $filterWordsA ) > 0 ? [ implode( ' AND ', $filterWordsA ) ] : [];
 				$options = [ 'ORDER BY' => 'cnt DESC', 'GROUP BY' => 'cl_to', 'LIMIT' => $limit ];
 				$res = $dbr->select( $tables, $fields, $where, __METHOD__, $options );
+				$categories = [];
 
 				// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 				while ( $row = $dbr->fetchObject( $res ) ) {
@@ -630,16 +579,6 @@ class MonacoSidebar {
 			}
 		}
 
-		return isset( $this->biggestCategories[$index-1] ) ? $this->biggestCategories[$index-1] : null;
-	}
-
-	private static function getReadingConnect() {
-		if ( method_exists( '\MediaWiki\MediaWikiServices', 'getConnectionProvider' ) ) {
-			$cp = MediaWikiServices::getInstance()->getConnectionProvider();
-			return $cp->getReplicaDatabase();
-		} else {
-			$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-			return $lb->getMaintenanceConnectionRef( DB_REPLICA );
-		}
+		return isset( $this->biggestCategories[$index - 1] ) ? $this->biggestCategories[$index - 1] : null;
 	}
 }
