@@ -1,14 +1,18 @@
 <?php
 
+namespace MediaWiki\Skin\Monaco;
+
+use MediaWiki\Context\RequestContext;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 use MediaWiki\Utils\UrlUtils;
+use ObjectCache;
 
 class MonacoSidebar {
 
-	public array $biggestCategories = [];
+	public array $biggestCategories;
 	public string $editUrl = '';
 	private HookContainer $hookContainer;
 
@@ -76,7 +80,6 @@ class MonacoSidebar {
 							$specialCanonicalName = $dbkey;
 						}
 					}
-
 					$title = $title->fixSpecialName();
 					$href = $title->getLocalURL();
 				} else {
@@ -180,12 +183,10 @@ class MonacoSidebar {
 				if ( isset( $nodes[$val]['children'] ) ) {
 					$mainMenu[$val] = $nodes[$val]['children'];
 				}
-
 				if ( isset( $nodes[$val]['magic'] ) ) {
 					$mainMenu[$val] = $nodes[$val]['magic'];
 				}
-
-				if ( isset( $nodes[$val]['href'] ) && $nodes[$val]['href'] == 'editthispage' ) {
+				if ( isset( $nodes[$val]['href'] ) && ( $nodes[$val]['href'] == 'editthispage' ) ) {
 					$menu .= '<!--b-->';
 				}
 
@@ -200,12 +201,10 @@ class MonacoSidebar {
 				if ( !isset( $nodes[$val]['internal'] ) || !$nodes[$val]['internal'] ) {
 					$menu .= ' rel="nofollow"';
 				}
-
 				$menu .= ' tabIndex=3>' . htmlspecialchars( $nodes[$val]['text'] );
 				if ( !empty( $nodes[$val]['children'] ) || !empty( $nodes[$val]['magic'] ) ) {
 					$menu .= '<em>&rsaquo;</em>';
 				}
-
 				$menu .= '</a>';
 				if ( !empty( $nodes[$val]['children'] ) || !empty( $nodes[$val]['magic'] ) ) {
 					$menu .= $this->getSubMenu( $nodes, $nodes[$val]['children'] );
@@ -257,7 +256,6 @@ class MonacoSidebar {
 			}
 
 			$memc = ObjectCache::getLocalClusterInstance();
-
 			// three days
 			$memc->set( $menuHash, $nodes, 60 * 60 * 24 * 3 );
 
@@ -387,7 +385,8 @@ class MonacoSidebar {
 
 				// expand to user sidebar
 				if ( $node['original'] == 'USER-SIDEBAR' ) {
-					$this->processSpecialSidebar( $this->doUserSidebar( $context->getUser() ),
+					$this->processSpecialSidebar(
+						$this->doUserSidebar( $context->getUser() ),
 						$lastDepth, $nodes, $i );
 
 					// we don't add the placeholder, we add the menu which is behind it
@@ -396,7 +395,8 @@ class MonacoSidebar {
 
 				// expand to group sidebar
 				if ( $node['original'] == 'GROUP-SIDEBAR' ) {
-					$this->processSpecialSidebar( $this->doGroupSidebar( $context->getUser() ),
+					$this->processSpecialSidebar(
+						$this->doGroupSidebar( $context->getUser() ),
 						$lastDepth, $nodes, $i );
 
 					// we don't add the placeholder, we add the menu which is behind it
@@ -566,6 +566,7 @@ class MonacoSidebar {
 				$where = count( $filterWordsA ) > 0 ? [ implode( ' AND ', $filterWordsA ) ] : [];
 				$options = [ 'ORDER BY' => 'cnt DESC', 'GROUP BY' => 'cl_to', 'LIMIT' => $limit ];
 				$res = $dbr->select( $tables, $fields, $where, __METHOD__, $options );
+				$categories = [];
 
 				// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 				while ( $row = $dbr->fetchObject( $res ) ) {
