@@ -12,7 +12,7 @@ use ObjectCache;
 
 class MonacoSidebar {
 
-	public array $biggestCategories;
+	public array $biggestCategories = [];
 	public string $editUrl = '';
 	private HookContainer $hookContainer;
 

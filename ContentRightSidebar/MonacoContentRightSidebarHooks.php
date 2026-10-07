@@ -147,7 +147,12 @@ class MonacoContentRightSidebarHooks implements
 				$content = substr( $content, 0, $contentEnd );
 			}
 
-			$boxes[] = [ 'with-box' => $withBox, 'title' => $title, 'class' => $class, 'content' => $content ];
+			$boxes[] = [
+				'with-box' => $withBox,
+				'title' => $title,
+				'class' => $class,
+				'content' => $content
+			];
 			$html = substr( $html, 0, $start ) . substr( $html, $end + strlen( RIGHT_SIDEBAR_END_TOKEN ) );
 		}
 

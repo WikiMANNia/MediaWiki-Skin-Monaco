@@ -7,7 +7,7 @@ About
 This is an unbranded fork of the Monaco skin originally developed by [Fandom](https://en.wikipedia.org/wiki/Fandom_(website)) (formerly known as Wikicities and Wikia).
 
 Compared to the original version of the skin, this fork now supports MediaWiki
-version 1.41+ officially.
+version 1.39+ officially.
 This codebase will usually remain up-to-date against MediaWiki, and will drop
 support for older versions unconditionally once it becomes impractical to
 continue to support them.
@@ -62,6 +62,23 @@ Development
 Version history
 ---------------
 
+2.7.0 - Apr 25, 2024
+
+- add new hook MonacoStaticboxEnd (for inserting Donation button)
+- add support for Paypal and Patreon
+- add &$html parameter to hooks
+
+2.7.1 - Apr 25, 2024
+
+- add compatibility with REL1_41
+
+2.7.2 - May 3, 2024
+
+- Themes activated
+-- add hook GetPreferences
+-- add UserOptionsLookup
+-- add i18n - Translations of the themes
+
 2.8.0 - May 11, 2024
 
 - Themes activated
@@ -73,11 +90,10 @@ Version history
 
 2.8.1 - Jul 21, 2024
 
-Fix issue with Global Variables:
-* ´MonacoSearchDefaultFulltext´
-* ´MonacoSpecialPagesRequiredLogin´
-
-Add i18n files
+- Fix issue with Global Variables:
+-- ´MonacoSearchDefaultFulltext´
+-- ´MonacoSpecialPagesRequiredLogin´
+- add i18n files
 
 
 2.8.2 - Sep 29, 2024
@@ -85,7 +101,7 @@ Add i18n files
 - Fix "Call to undefined method MonacoTemplate::getContext()" [Universal-Omega#33](https://github.com/Universal-Omega/Monaco/pull/33)
 -- Replace "wfUrlProtocols()" with "wfUrlProtocolsWithoutProtRel()"
 -- Substituted deprecated function "Skin::makeSpecialUrl()" into "SkinComponentUtils::makeSpecialUrl()"
--- Add i18n files
+- Add i18n files
 
 
 2.8.3 - Mar 4, 2025
@@ -107,5 +123,12 @@ Add i18n files
 2.8.5 - Oct 27, 2025
 
 - Fix - Oct 26, 2025: Fix search bar not redirecting to Special:Search [Universal-Omega#38](https://github.com/Universal-Omega/Monaco/issues/38)
--- Use ENT_QUOTES since the skin currently requires 1.41 which still supports PHP 7 where ENT_QUOTES is not enabled by default.
+-- Use ENT_QUOTES since the skin currently requires 1.39 which supports PHP 7 where ENT_QUOTES is not enabled by default.
 - Code refinement
+
+
+2.9.0 - Oct 7, 2026
+
+- add compatibility with REL1_47
+- add backward compatibility with REL1_39
+
