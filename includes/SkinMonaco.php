@@ -217,14 +217,16 @@ class SkinMonaco extends SkinTemplate {
 			$results = DataProvider::$extraWords[strtolower( $node['org'] )][1]();
 			$results[] = [
 				'url' => SpecialPage::getTitleFor( 'Top/' . $extraWords[ strtolower( $node['org'] ) ][0] )->getLocalURL(),
-				'text' => strtolower( wfMessage( 'moredotdotdot' )->text() ), 'class' => 'Monaco-sidebar_more'
+				'text' => strtolower( wfMessage( 'moredotdotdot' )->text() ),
+				'class' => 'Monaco-sidebar_more'
 			];
 
 			if ( $this->getUser()->isAllowed( 'editinterface' ) ) {
 				if ( strtolower( $node['org'] ) == '#popular#' ) {
 					$results[] = [
 						'url' => Title::makeTitle( NS_MEDIAWIKI, 'Most popular articles' )->getLocalUrl(),
-						'text' => wfMessage( 'monaco-edit-this-menu' )->text(), 'class' => 'Monaco-sidebar_edit'
+						'text' => wfMessage( 'monaco-edit-this-menu' )->text(),
+						'class' => 'Monaco-sidebar_edit'
 					];
 				}
 			}

@@ -1,11 +1,8 @@
 {
 	"name": "Monaco",
-	"version": "2.8.5",
+	"version": "2.9.0",
 	"requires": {
 		"MediaWiki": ">= 1.39.0"
-	},
-	"platform": {
-		"php": ">= 7.4.3"
 	},
 	"author": [
 		"'''Universal Omega'''",
@@ -20,14 +17,21 @@
 	"descriptionmsg": "monaco-desc",
 	"license-name": "GPL-2.0-or-later",
 	"type": "skin",
+	"callback": "MediaWiki\\Skin\\Monaco\\MonacoHooks::onRegistration",
 	"ValidSkinNames": {
 		"monaco": {
 			"displayname": "Monaco",
-			"class": "SkinMonaco",
+			"class": "MediaWiki\\Skin\\Monaco\\SkinMonaco",
 			"args": [ {
 				"name": "monaco",
 				"bodyOnly": true,
-				"template": "MonacoTemplate",
+				"menus": [
+					"associated-pages",
+					"views",
+					"actions",
+					"variants"
+				],
+				"template": "MediaWiki\\Skin\\Monaco\\MonacoTemplate",
 				"styles": [
 					"skins.monaco"
 				],
@@ -41,12 +45,6 @@
 		"Monaco": [
 			"i18n"
 		]
-	},
-	"AutoloadClasses": {
-		"SkinMonaco": "includes/SkinMonaco.php",
-		"MonacoHooks": "includes/MonacoHooks.php",
-		"MonacoSidebar": "includes/MonacoSidebar.php",
-		"MonacoTemplate": "includes/MonacoTemplate.php"
 	},
 	"ConfigRegistry": {
 		"monaco": "GlobalVarConfig::newInstance"
@@ -188,21 +186,24 @@
 			"value": []
 		}
 	},
+	"AutoloadNamespaces": {
+		"MediaWiki\\Skin\\Monaco\\": "includes/"
+	},
+	"HookHandlers": {
+		"main": {
+			"class": "MediaWiki\\Skin\\Monaco\\MonacoHooks",
+			"services": [
+				"MainConfig",
+				"UserOptionsLookup"
+			]
+		}
+	},
 	"Hooks": {
 		"GetPreferences": "main",
 		"MessageCacheReplace": [
 			"MonacoSidebar::invalidateCache"
 		],
 		"OutputPageBodyAttributes": "main"
-	},
-	"HookHandlers": {
-		"main": {
-			"class": "MonacoHooks",
-			"services": [
-				"MainConfig",
-				"UserOptionsLookup"
-			]
-		}
 	},
 	"manifest_version": 2
 }

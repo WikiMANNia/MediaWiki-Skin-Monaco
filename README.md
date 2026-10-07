@@ -53,8 +53,31 @@ A fork [maintained by haleyjd](https://github.com/haleyjd/monaco-port) supports 
 
 This is an unbranded fork of the Monaco skin originally developed by Wikia (now [Fandom](https://en.wikipedia.org/wiki/Fandom_(website))) which is being maintained for use at [DoomWiki.org](http://doomwiki.org/). It was also previously deployed at the Orain non-profit wiki farm before it went offline.
 
+Development
+-----------
+
+* https://github.com/Universal-Omega/Monaco
+* https://github.com/wikimedia/mediawiki-skins-Monaco
+
 Version history
 ---------------
+
+2.7.0 - Apr 25, 2024
+
+- add new hook MonacoStaticboxEnd (for inserting Donation button)
+- add support for Paypal and Patreon
+- add &$html parameter to hooks
+
+2.7.1 - Apr 25, 2024
+
+- add compatibility with REL1_41
+
+2.7.2 - May 3, 2024
+
+- Themes activated
+-- add hook GetPreferences
+-- add UserOptionsLookup
+-- add i18n - Translations of the themes
 
 2.8.0 - May 11, 2024
 
@@ -67,18 +90,18 @@ Version history
 
 2.8.1 - Jul 21, 2024
 
-Fix issue with Global Variables:
-* ´MonacoSearchDefaultFulltext´
-* ´MonacoSpecialPagesRequiredLogin´
-
-Add i18n files
+- Fix issue with Global Variables:
+-- ´MonacoSearchDefaultFulltext´
+-- ´MonacoSpecialPagesRequiredLogin´
+- add i18n files
 
 
 2.8.2 - Sep 29, 2024
 
 - Fix "Call to undefined method MonacoTemplate::getContext()" [Universal-Omega#33](https://github.com/Universal-Omega/Monaco/pull/33)
 -- Replace "wfUrlProtocols()" with "wfUrlProtocolsWithoutProtRel()"
--- Add i18n files
+-- Substituted deprecated function "Skin::makeSpecialUrl()" into "SkinComponentUtils::makeSpecialUrl()"
+- Add i18n files
 
 
 2.8.3 - Mar 4, 2025
@@ -89,8 +112,9 @@ Add i18n files
 
 2.8.4 - Oct 25, 2025
 
-- Fix - May 2, 2015: Replace deprecated methods [Universal-Omega#37](https://github.com/Universal-Omega/Monaco/pull/37)
--- Replace wfUrlProtocols() (deprecated since 1.39) with UrlUtils->validProtocols()
+- Fix - May 2, 2015: Fix 1.44 compatibility; replace deprecated methods [Universal-Omega#37](https://github.com/Universal-Omega/Monaco/pull/37)
+-- Add namespaced imports for Html, Title and Linker (the non-namespaced aliases are removed in 1.44)
+-- Replace wfUrlProtocols() (hard-deprecated since 1.43) with UrlUtils->validProtocols()
 -- Replace Skin::makeSpecialUrl (deprecated since 1.39) with SkinComponentUtils::makeSpecialUrl
 - Improve logic regarding settings of $wgMonacoAllowUseTheme and $wgMonacoTheme
 - Localisation updates from https://translatewiki.net/.
@@ -101,3 +125,10 @@ Add i18n files
 - Fix - Oct 26, 2025: Fix search bar not redirecting to Special:Search [Universal-Omega#38](https://github.com/Universal-Omega/Monaco/issues/38)
 -- Use ENT_QUOTES since the skin currently requires 1.39 which supports PHP 7 where ENT_QUOTES is not enabled by default.
 - Code refinement
+
+
+2.9.0 - Oct 7, 2026
+
+- add compatibility with REL1_47
+- add backward compatibility with REL1_39
+

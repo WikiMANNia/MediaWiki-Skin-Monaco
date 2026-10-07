@@ -12,7 +12,7 @@ use ObjectCache;
 
 class MonacoSidebar {
 
-	public array $biggestCategories;
+	public array $biggestCategories = [];
 	public string $editUrl = '';
 	private HookContainer $hookContainer;
 
@@ -34,7 +34,7 @@ class MonacoSidebar {
 		$line_temp = explode( '|', trim( $line, '* ' ), 3 );
 		$line_temp[0] = trim( $line_temp[0], '[]' );
 
-		if ( count( $line_temp ) >= 2 && $line_temp[1] != '' ) {
+		if ( ( count( $line_temp ) >= 2 ) && ( $line_temp[1] != '' ) ) {
 			$line = trim( $line_temp[1] );
 			$link = trim( wfMessage( $line_temp[0] )->inContentLanguage()->text() );
 		} else {
@@ -211,7 +211,7 @@ class MonacoSidebar {
 				}
 				$menu .= '</li>';
 
-				if ( isset( $nodes[$val]['href'] ) && $nodes[$val]['href'] == 'editthispage' ) {
+				if ( isset( $nodes[$val]['href'] ) && ( $nodes[$val]['href'] == 'editthispage' ) ) {
 					$menu .= '<!--e-->';
 				}
 			}
@@ -241,7 +241,7 @@ class MonacoSidebar {
 			$menuHash = hash( 'md5', serialize( $nodes ) );
 
 			foreach ( $nodes as $key => $val ) {
-				if ( !isset( $val['depth'] ) || $val['depth'] == 1 ) {
+				if ( !isset( $val['depth'] ) || ( $val['depth'] == 1 ) ) {
 					unset( $nodes[$key] );
 				}
 
@@ -409,7 +409,7 @@ class MonacoSidebar {
 						// we have to know later if there is editthispage special word used in first level
 						$nodes[0]['editthispage'] = true;
 					}
-				} elseif ( !empty( $node['original'] ) && $node['original'][0] == '#' ) {
+				} elseif ( !empty( $node['original'] ) && ( $node['original'][0] == '#' ) ) {
 					if ( $this->handleMagicWord( $node ) ) {
 						$nodes[0]['magicWords'][] = $node['magic'];
 
@@ -438,7 +438,7 @@ class MonacoSidebar {
 		$lineTmp[0] = trim( $lineTmp[0], '[]' );
 		$internal = false;
 
-		if ( count( $lineTmp ) == 2 && $lineTmp[1] != '' ) {
+		if ( ( count( $lineTmp ) == 2 ) && ( $lineTmp[1] != '' ) ) {
 			$link = trim( wfMessage( $lineTmp[0] )->inContentLanguage()->text() );
 			$line = trim( $lineTmp[1] );
 		} else {
